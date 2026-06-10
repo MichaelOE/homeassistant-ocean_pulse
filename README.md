@@ -1,4 +1,4 @@
-# Fisker Ocean custom integration for Home Assistant
+# Fisker Ocean Pulse custom integration for Home Assistant
 [![BuyMeCoffee][buymecoffeebadge]][michaeloe-buymecoffee]
 
 ##### 2026-06-09: Renamed integration to 'Ocean Pulse' and testing towards Pulse connection...
@@ -10,32 +10,24 @@
 Custom integration for getting information about your Fisker Ocean presented in Home Assistant.
 
 ## Target
-The project is meant to get all available sensor values from Fisker Ocean cars.
+The project is meant to get all available sensor values from Fisker Ocean cars via the Ocean Pulse device.
 
 ## Method
-I reverse engineered the api used together with the official 'My Fisker' mobile app.
-Utilizing this, I then at regularly intervals poll the cloud service for the cars digital twin.
+At regularly intervals poll the cloud service for updated values.
 
 ## Sensors
 All values exposed by the cloud api are available as sensors in Home Assistant.
 
-<img src="https://github.com/MichaelOE/home-assistant-MyFisker/assets/37800126/55d11a02-86ec-48ad-978b-2ea01c27f41f" width="400" title="Screenshot"/>
-<img src="https://github.com/MichaelOE/home-assistant-MyFisker/assets/37800126/a57eb9a7-2d01-4fdc-a29f-da1f757878e1" width="400" title="Screenshot"/>
-
 # Features
-The buttons available in the official app, is also available in this integration as 'buttons'.
-
-![billede](https://github.com/user-attachments/assets/8a077d33-bf1c-40ac-aafc-79da220d5c9a)
+Currently only sensor values are present
 
 # Installation and setup
 This integration can be installed through HACS.
 
-Alternatively, you can get the custom repository here: https://github.com/MichaelOE/home-assistant-MyFisker
+Alternatively, you can get the custom repository here: https://github.com/MichaelOE/home-assistant-ocean_pulse
 
 ## Setup
-- Username: The same as you use in your 'My Fisker'
-- Password: The same as you use in your 'My Fisker'
-- Region: Select your region, used to determine the datacenter URL
+- QR code: Enter QR code digits to connect to cloud
 - Alias: Prefix, which is used on all entity names created by the integration
 
 # Usage
@@ -83,7 +75,7 @@ apex_config:
       enabled: true
 header:
   show: true
-  title: Rækkevidde
+  title: Range
   colorize_states: true
   show_states: true
 graph_span: 24h
@@ -113,10 +105,4 @@ series:
 ```
 
 # Known issues
-- Currently only supports one vehicle per account
-- Battery range sometimes reported as 0 (zero) from the Fisker API
-- Battery / range is reported without decimals, making trip stats unprecise at shorter trips
-
-
-[buymecoffeebadge]: https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png
-[michaeloe-buymecoffee]: https://buymeacoffee.com/michaeloe
+- n/a
