@@ -1,7 +1,9 @@
 # Fisker Ocean custom integration for Home Assistant
 [![BuyMeCoffee][buymecoffeebadge]][michaeloe-buymecoffee]
 
-##### 2026-0é-24: Still waiting for 'pulse' to arrive. Fully expecting this to come back alive after that... 🤞
+##### 2026-06-09: Renamed integration to 'Ocean Pulse' and testing towards Pulse connection...
+
+##### 2026-04-24: Still waiting for 'pulse' to arrive. Fully expecting this to come back alive after that... 🤞
 
 ##### 2025-05-16: Possible issues with cloud access due to AL cutting connection
 
