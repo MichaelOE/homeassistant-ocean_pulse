@@ -4,11 +4,11 @@
   "codeowners": [
     "@MichaelOE"
   ],
-  "version": "0.6.0",
+  "version": "0.7.0",
   "config_flow": true,
   "dependencies": [],
-  "documentation": "https://github.com/MichaelOE/homeassistant-ocean-pulse",
-  "issue_tracker": "https://github.com/MichaelOE/homeassistant-ocean-pulse/issues",
+  "documentation": "https://github.com/MichaelOE/homeassistant-ocean_pulse",
+  "issue_tracker": "https://github.com/MichaelOE/homeassistant-ocean_pulse/issues",
   "homekit": {},
   "iot_class": "cloud_polling",
   "requirements": [],
