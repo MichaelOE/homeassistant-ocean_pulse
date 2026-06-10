@@ -1,0 +1,17 @@
+{
+  "domain": "ocean_pulse",
+  "name": "Ocean Pulse",
+  "codeowners": [
+    "@MichaelOE"
+  ],
+  "version": "0.6.0",
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/MichaelOE/homeassistant-ocean-pulse",
+  "issue_tracker": "https://github.com/MichaelOE/homeassistant-ocean-pulse/issues",
+  "homekit": {},
+  "iot_class": "cloud_polling",
+  "requirements": [],
+  "ssdp": [],
+  "zeroconf": []
+}

@@ -1,0 +1,31 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect Ocean Pulse Device",
+        "description": "Enter the pairing code shown on your Ocean Pulse device or generated QR code.",
+        "data": {
+          "pairing_code": "Pairing Code",
+          "base_url": "Server URL"
+        },
+        "data_description": {
+          "pairing_code": "The pairing code shown on your Ocean Pulse device or generated QR code."
+        }
+      },
+      "alias": {
+        "data": {
+          "alias": "[%key:common::config_flow::data::alias%]"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
+      "invalid_auth": "[%key:common::config_flow::error::invalid_auth%]",
+      "invalid_pairing_code": "[%key:common::config_flow::error::invalid or expired pairing code%]",
+      "unknown": "[%key:common::config_flow::error::unknown%]"
+    },
+    "abort": {
+      "already_configured": "[%key:common::config_flow::abort::already_configured_device%]"
+    }
+  }
+}
