@@ -8,6 +8,7 @@ from datetime import datetime, timedelta, timezone
 import logging
 from zoneinfo import ZoneInfo
 
+from homeassistant.components.binary_sensor import BinarySensorEntityDescription
 from homeassistant.components.button import ButtonEntityDescription
 from homeassistant.components.sensor import SensorEntityDescription
 from homeassistant.config_entries import ConfigEntry
@@ -21,21 +22,15 @@ from homeassistant.helpers.update_coordinator import (
 )
 
 from .api import OceanPulseAPI, PulseDeviceLink
-from .const import (
-    DEVICE_MANUCFACTURER,
-    DEVICE_MODEL,
-    DOMAIN,
-    TRIM_EXTREME_ULTRA_BATT_CAPACITY,
-    TRIM_SPORT_BATT_CAPACITY,
-)
+from .const import DEVICE_MANUCFACTURER, DEVICE_MODEL, DOMAIN
 from .stats import TripStats
 
 _LOGGER = logging.getLogger(__name__)
 
 PLATFORMS: list[Platform] = [
-    # Platform.BINARY_SENSOR,
-    # Platform.BUTTON,
-    # Platform.DEVICE_TRACKER,
+    Platform.BINARY_SENSOR,
+    Platform.BUTTON,
+    Platform.DEVICE_TRACKER,
     Platform.SENSOR,
 ]
 
@@ -147,9 +142,9 @@ class OceanPulseBaseEntity(CoordinatorEntity):
         self.index = index
         self._coordinator = coordinator
 
-        if self._coordinator.data is None:
+        if self._coordinator is None:
             _LOGGER.warning(
-                "OceanPulseBaseEntity: coordinator data is None – (%s)", self.index
+                "OceanPulseBaseEntity: coordinator data is None - (%s)", self.index
             )
             return
 
@@ -189,6 +184,30 @@ class OceanPulseButtonEntityDescription(ButtonEntityDescription):
 
 
 @dataclass
+class OceanPulseBinarySensorEntityDescription(BinarySensorEntityDescription):
+    """Describes Ocean Pulse binary sensor entity."""
+
+    def __init__(
+        self,
+        key: str,
+        name: str,
+        icon: str,
+        device_class,
+        value,
+    ) -> None:
+        super().__init__(key)
+        self.key = key
+        self.name = name
+        self.icon = icon
+        if device_class is not None:
+            self.device_class = device_class
+        self.value = value
+
+    def get_value(self, data):
+        return self.value(data, self.key)
+
+
+@dataclass
 class OceanPulseSensorEntityDescription(SensorEntityDescription):
     """Describes Ocean Pulse sensor entity."""
 
@@ -201,6 +220,8 @@ class OceanPulseSensorEntityDescription(SensorEntityDescription):
         native_unit_of_measurement,
         value,
         format=None,
+        suggested_display_precision: int | None = None,
+        entity_registry_visible_default: bool = True,
     ) -> None:
         super().__init__(key)
         self.key = key
@@ -211,6 +232,8 @@ class OceanPulseSensorEntityDescription(SensorEntityDescription):
         self.native_unit_of_measurement = native_unit_of_measurement
         self.value = value
         self.format = format
+        self.suggested_display_precision = suggested_display_precision
+        self.entity_registry_visible_default = entity_registry_visible_default
 
     def get_digital_twin_value(self, data):
         return self.value(data, self.key)

@@ -66,15 +66,12 @@ class OceanPulseSensor(OceanPulseBaseEntity, CoordinatorEntity, SensorEntity):
             self._attr_options = LIST_CLIMATE_CONTROL_SEAT_HEAT
             self._attr_device_class = SensorDeviceClass.ENUM
 
-    @property
-    def battery_capacity(self):
-        trim_extreme_ultra = ["VCF1Z", "VCF1E", "VCF1U"]
-        trim_sport = ["VCF1s"]
-        if self.vin[0:5] in trim_extreme_ultra:
-            return TRIM_EXTREME_ULTRA_BATT_CAPACITY
-        if self.vin[0:5] in trim_sport:
-            return TRIM_SPORT_BATT_CAPACITY
-        return 0
+        if sensor.suggested_display_precision is not None:
+            self._attr_suggested_display_precision = sensor.suggested_display_precision
+
+        self._attr_entity_registry_visible_default = (
+            sensor.entity_registry_visible_default
+        )
 
     @callback
     def _handle_coordinator_update(self) -> None:
@@ -90,15 +87,7 @@ class OceanPulseSensor(OceanPulseBaseEntity, CoordinatorEntity, SensorEntity):
         self.update_chargestats()
         self.update_tripstats()
 
-        if "car_settings" in self.entity_description.key:
-            try:
-                value = self.handle_carsettings(self.entity_description.key)
-                data_available = True
-                self._attr_native_value = value
-            except Exception:
-                _LOGGER.debug("car_settings not available")
-
-        elif "tripstat" in self.entity_description.key:
+        if "tripstat" in self.entity_description.key:
             self._attr_native_value = self.handle_tripstats(self.entity_description.key)
 
         elif "chargestat" in self.entity_description.key:
@@ -115,7 +104,9 @@ class OceanPulseSensor(OceanPulseBaseEntity, CoordinatorEntity, SensorEntity):
             elif "last_update" in self.entity_description.key:
                 utc_time = datetime.fromisoformat(value.replace("Z", "+00:00"))
                 local_time = utc_time + self._coordinator.time_difference_from_utc
-                self._attr_native_value = local_time.strftime("%Y-%m-%d %H:%M:%S")
+                self._attr_native_value = local_time.strftime(
+                    self.entity_description.format
+                )
             else:
                 self._attr_native_value = value
 

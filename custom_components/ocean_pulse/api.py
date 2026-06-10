@@ -115,7 +115,10 @@ class OceanPulseAPI:
                                 "FAN_SPEED": 0,
                                 "FRONT_DEFROST": False,
                                 "HV_CAP": 69.47,
-                                "LOCATION": {"lat": 35.76163299999999, "lon": -78.42675200000001},
+                                "LOCATION": {
+                                    "lat": 55.71163299999999,
+                                    "lon": 9.86675200000001,
+                                },
                                 "LOCK_STATUS": "locked",
                                 "MILEAGE": 31281.4,
                                 "OUTDOOR_TEMP": 29.5,
@@ -148,7 +151,41 @@ class OceanPulseAPI:
         finally:
             self.is_loading = False
 
-            # {device_id: a8cc29a4d7967f217ca2a8cfe489588c, device_name: Bluey, status: {AC_AUTO: off, AC_CHARGE_LAMP: 0, AC_CHARGE_LAMP_COLOR: off, AC_STATE: off, AMBIENT_TEMP: 29.5, BATTERY_12V: 12.919, CHARGING: 0, CLIMATE_ON: false, CLIMATE_STATE: 0, DC_CHARGE_LAMP: 0, DC_CHARGE_LAMP_COLOR: off, DOOR_FL_OPEN: false, DOOR_FR_OPEN: false, DOOR_RL_OPEN: false, DOOR_RR_OPEN: false, DRIVER_TEMP: 20.5, FAN_SPEED: 0, FRONT_DEFROST: false, HV_CAP: 69.47, LOCATION: {lat: 35.76163299999999, lon: -78.42675200000001}, LOCK_STATUS: locked, MILEAGE: 31281.4, OUTDOOR_TEMP: 29.5, PASS_TEMP: 20.5, POWER_MODE: off, RANGE: 306, REAR_DEFROST: false, RECIRCULATION: outer, SCU_CONNECTED: true, SEAT_HEAT_DRIVER: 4, SEAT_HEAT_PASSENGER: 4, SEAT_HEAT_REAR_LEFT: 4, SEAT_HEAT_REAR_RIGHT: 4, SOC: 69, SOH: 98, STEERING_WHEEL_HEAT: false, SYNC_ON: true, TRUNK_OPEN: false, installed_build: 2229, installed_version: 1.0.0, last_update: 2026-05-29T17:10:03.640265Z}}
+    async def send_command(
+        self,
+        vin: str,
+        cmd: str,
+        extra_data: dict | None = None,
+    ) -> dict:
+        """Send a vehicle command for a specific VIN."""
+        link = self._require_link(vin)
+        self.is_loading = True
+        try:
+            headers = await self._auth_headers(link)
+            url = f"{link.api_base_url}/api/devices/{link.car_device_id}/commands"
+            body: dict = {"cmd": cmd}
+            if extra_data is not None:
+                body["extra_data"] = extra_data
+            async with aiohttp.ClientSession() as session:
+                async with session.post(
+                    url,
+                    headers=headers,
+                    json=body,
+                    timeout=aiohttp.ClientTimeout(total=15),
+                ) as resp:
+                    if resp.status in (200, 201):
+                        return await resp.json()
+                    if resp.status == 401:
+                        _LOGGER.debug(
+                            "PulseCloud: [send_command] device unlinked for VIN %s", vin
+                        )
+                        raise Exception(
+                            "Token revoked - device unlinked [send_command]"
+                        )
+                    text = await resp.text()
+                    raise Exception(f"Command failed: {resp.status} {text}")
+        finally:
+            self.is_loading = False
 
     async def _auth_headers(self, link: PulseDeviceLink) -> dict:
         if link.access_token is None or self._is_token_expired(link.access_token):

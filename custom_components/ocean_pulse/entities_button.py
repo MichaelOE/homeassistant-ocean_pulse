@@ -2,59 +2,43 @@
 
 from homeassistant.helpers.entity import EntityDescription
 
-from . import OceanPulseButtonEntityDescription as FiskerButtonEntityDescription
+from . import OceanPulseButtonEntityDescription as OceanPulseButtonEntityDescription
 
 BUTTON_ENTITIES: list[EntityDescription] = [
-    FiskerButtonEntityDescription(
+    OceanPulseButtonEntityDescription(
         key="doors_unlock",
         name="Doors Unlock",
         translation_key="doors_unlock",
         icon="mdi:car-door-lock-open",
-        command="doors_unlock",
+        command="PKC_UNLOCK",
     ),
-    FiskerButtonEntityDescription(
+    OceanPulseButtonEntityDescription(
         key="doors_lock",
         name="Doors Lock",
         translation_key="doors_lock",
         icon="mdi:car-door-lock",
-        command="doors_lock",
+        command="PKC_LOCK",
     ),
-    FiskerButtonEntityDescription(
-        key="trunk_open",
-        name="Trunk Open",
-        translation_key="trunk_open",
+    OceanPulseButtonEntityDescription(
+        key="trunk_activate",
+        name="Trunk Activate",
+        translation_key="trunk_activate",
         icon="mdi:car-back",
-        command="trunk_open",
+        command="PKC_TRUNK_ACTIVATE",
     ),
-    FiskerButtonEntityDescription(
-        key="trunk_close",
-        name="Trunk Close",
-        translation_key="trunk_close",
-        icon="mdi:car-back",
-        command="trunk_close",
+    OceanPulseButtonEntityDescription(
+        key="cabin_temperature_15",
+        name="Cabin climeate (15 min)",
+        translation_key="cabin_temperature_15",
+        icon="mdi:air-conditioner",
+        command="PKC_CLIMATE_ON",
+        command_data={"durationMinutes": 15},
     ),
-    FiskerButtonEntityDescription(
-        key="california_mode_on",
-        name="California mode ON",
-        translation_key="california_mode",
-        icon="mdi:car-convertible",
-        command="california_mode",
-        command_data="on",
+    OceanPulseButtonEntityDescription(
+        key="cabin_climate_off",
+        name="Cabin climate off",
+        translation_key="cabin_climate_off",
+        icon="mdi:air-conditioner",
+        command="PKC_CLIMATE_OFF",
     ),
-    FiskerButtonEntityDescription(
-        key="california_mode_off",
-        name="California mode OFF",
-        translation_key="california_mode",
-        icon="mdi:car-convertible",
-        command="cabin_temperature",
-        command_data="off",
-    ),
-    #     FiskerButtonEntityDescription(
-    #         key="cabin_temperature",
-    #         name="cabin_temperature",
-    #         translation_key="cabin_temperature",
-    #         icon="mdi:air-conditioner",
-    #         command="cabin_temperature",
-    #         command_data="18",
-    #     ),
 ]

@@ -1,13 +1,17 @@
 import logging
 
 from homeassistant.components.device_tracker import SourceType
-from homeassistant.components.device_tracker.config_entry import TrackerEntity
+from homeassistant.components.device_tracker.entity import TrackerEntity
 from homeassistant.components.sensor import SensorEntityDescription
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from . import FiskerBaseEntity, FiskerSensorEntityDescription
+from . import (
+    OceanPulseBaseEntity,
+    OceanPulseCoordinator,
+    OceanPulseSensorEntityDescription,
+)
 from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
@@ -20,37 +24,34 @@ async def async_setup_entry(
 ):
     """Add sensors for passed config_entry in HA."""
 
-    my_Fisker_data = hass.data[DOMAIN][config_entry.entry_id]
-    coordinator = my_Fisker_data._coordinator
+    coordinator: OceanPulseCoordinator = hass.data[DOMAIN][config_entry.entry_id]
     entities: list[DeviceTrackerSensor] = []
 
     # Fetch initial data so we have data when entities subscribe
     await coordinator.async_config_entry_first_refresh()
 
     sens = DEVICE_TRACKER_SENSORS[0]
-    entities.append(DeviceTrackerSensor(sens, my_Fisker_data))
+    entities.append(DeviceTrackerSensor(sens, coordinator))
 
     if entities:
         async_add_entities(entities)
 
 
-class DeviceTrackerSensor(FiskerBaseEntity, TrackerEntity):
+class DeviceTrackerSensor(OceanPulseBaseEntity, TrackerEntity):
     """Representation of a vehicle device_Tracker sensor."""
 
     def __init__(
         self,
-        sensor: FiskerSensorEntityDescription,
-        client,
+        sensor: OceanPulseSensorEntityDescription,
+        coordinator: OceanPulseCoordinator,
     ) -> None:
-        """Initialize My Fisker vehicle sensor."""
-        super().__init__(client._coordinator, -1)
+        """Initialize Ocean Pulse vehicle sensor."""
+        super().__init__(coordinator, -1)
 
-        self._coordinator = client._coordinator
-        self._data = client
+        self._coordinator = coordinator
+        self._data = coordinator.data
         self.entity_description = sensor
-        self._attr_unique_id = (
-            f"{self._coordinator.data['vin']}_{self.entity_description.key}"
-        )
+        self._attr_unique_id = f"{self._coordinator.vin}_{self.entity_description.key}"
         self._attr_name = f"{self._coordinator.alias} {self.entity_description.name}"
 
         _LOGGER.info(self._attr_unique_id)
@@ -63,7 +64,7 @@ class DeviceTrackerSensor(FiskerBaseEntity, TrackerEntity):
     def latitude(self) -> float:
         """Return latitude value of the device."""
         try:
-            lat = self._coordinator.data["location_latitude"]
+            lat = self._coordinator.data["lat"]
             return lat
         except KeyError:
             return None
@@ -72,7 +73,7 @@ class DeviceTrackerSensor(FiskerBaseEntity, TrackerEntity):
     def longitude(self) -> float:
         """Return longitude value of the device."""
         try:
-            lon = self._coordinator.data["location_longitude"]
+            lon = self._coordinator.data["lon"]
             return lon
         except KeyError:
             return None
@@ -81,7 +82,7 @@ class DeviceTrackerSensor(FiskerBaseEntity, TrackerEntity):
     def battery_level(self) -> float:
         """Return battery_level of the device."""
         try:
-            soc = self._coordinator.data["battery_state_of_charge"]
+            soc = self._coordinator.data["SOC"]
             return soc
         except KeyError:
             return None
@@ -95,7 +96,7 @@ class DeviceTrackerSensor(FiskerBaseEntity, TrackerEntity):
     def extra_state_attributes(self):
         """Return timestamp of when the data was captured."""
         try:
-            return {"last_captured": f"{self._coordinator.data['updated']}"}
+            return {"last_captured": f"{self._coordinator.data['last_update']}"}
         except KeyError:
             return None
 
@@ -109,7 +110,7 @@ def get_sensor_by_key(key):
 
 
 DEVICE_TRACKER_SENSORS: tuple[SensorEntityDescription, ...] = (
-    FiskerSensorEntityDescription(
+    OceanPulseSensorEntityDescription(
         key="device_location",
         name="Location",
         icon="mdi:crosshairs-gps",

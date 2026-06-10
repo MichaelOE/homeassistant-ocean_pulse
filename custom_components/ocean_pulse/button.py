@@ -10,7 +10,11 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from . import FiskerBaseEntity, FiskerButtonEntityDescription, MyFiskerCoordinator
+from . import (
+    OceanPulseBaseEntity,
+    OceanPulseButtonEntityDescription,
+    OceanPulseCoordinator,
+)
 from .api import OceanPulseAPI
 from .const import DEVICE_MANUCFACTURER, DEVICE_MODEL, DOMAIN
 from .entities_button import BUTTON_ENTITIES
@@ -18,20 +22,22 @@ from .entities_button import BUTTON_ENTITIES
 _LOGGER = logging.getLogger(__name__)
 
 
-class FiskerButton(FiskerBaseEntity, ButtonEntity):
+class OceanPulseButton(OceanPulseBaseEntity, ButtonEntity):
+    """Button entity for OceanPulse vehicle commands."""
+
     def __init__(
         self,
-        coordinator: MyFiskerCoordinator,
-        description: FiskerButtonEntityDescription,
+        coordinator: OceanPulseCoordinator,
+        description: OceanPulseButtonEntityDescription,
         # device_info: DeviceInfo,
     ) -> None:
-        """Initialize My Fisker vehicle sensor."""
+        """Initialize OceanPulse vehicle sensor."""
         super().__init__(coordinator, -1)
 
         self.entity_description = description
-        self._coordinator: MyFiskerCoordinator = coordinator
+        self._coordinator: OceanPulseCoordinator = coordinator
         self._state = 0
-        self._attr_unique_id = f"{self._coordinator.data['vin']}_{description.key}"
+        self._attr_unique_id = f"{self._coordinator.vin}_{description.key}"
         self._attr_name = f"{self._coordinator.alias} {description.name}"
 
         _LOGGER.info(self._attr_unique_id)
@@ -54,26 +60,20 @@ class FiskerButton(FiskerBaseEntity, ButtonEntity):
 
     @callback
     def _handle_coordinator_update(self) -> None:
-        # try:
-        #     _LOGGER.info("Fisker: _handle_coordinator_update")
-        # except Exception as exc:
-        #     raise HomeAssistantError(f"Error updating entity {self.key}") from exc
         super()._handle_coordinator_update()
 
     async def async_press(self) -> None:
         """Press the button."""
         _LOGGER.info("Press %s", self.entity_description.key)
 
-        api: OceanPulseAPI = self._coordinator.my_fisker_api
+        api: OceanPulseAPI = self._coordinator.api
 
         try:
-            if self.entity_description.command_data:
-                await api.SendCommandRequest(
-                    self.entity_description.command,
-                    self.entity_description.command_data,
-                )
-            else:
-                await api.SendCommandRequest(self.entity_description.command)
+            await api.send_command(
+                self._coordinator.vin,
+                self.entity_description.command,
+                self.entity_description.command_data,
+            )
         except Exception as exc:
             raise HomeAssistantError(
                 f"Running command '{self.entity_description.key}' failed"
@@ -87,13 +87,8 @@ async def async_setup_entry(
 ) -> None:
     _LOGGER.debug("Setup buttons")
 
-    my_Fisker_data = hass.data[DOMAIN][entry.entry_id]
+    coordinator: OceanPulseCoordinator = hass.data[DOMAIN][entry.entry_id]
 
-    coordinator = my_Fisker_data._coordinator
-
-    entities: list[FiskerButton] = []
-
-    for but in BUTTON_ENTITIES:
-        entities.append(FiskerButton(coordinator, but))
-
-    async_add_entities(entities, True)
+    async_add_entities(
+        [OceanPulseButton(coordinator, but) for but in BUTTON_ENTITIES], True
+    )

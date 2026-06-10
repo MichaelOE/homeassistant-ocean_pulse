@@ -7,7 +7,11 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from . import FiskerBaseEntity, FiskerSensorEntityDescription
+from . import (
+    OceanPulseBaseEntity,
+    OceanPulseCoordinator,
+    OceanPulseSensorEntityDescription,
+)
 from .const import (
     CLIMATE_CONTROL_STEERING_WHEEL_HEAT,
     DEVICE_MANUCFACTURER,
@@ -26,11 +30,9 @@ async def async_setup_entry(
 ) -> None:
     _LOGGER.debug("Setup sensors")
 
-    my_Fisker_data = hass.data[DOMAIN][entry.entry_id]
+    coordinator: OceanPulseCoordinator = hass.data[DOMAIN][entry.entry_id]
 
-    coordinator = my_Fisker_data._coordinator
-
-    entities: list[FiskerSensor] = []
+    entities: list[OceanPulseBinarySensor] = []
 
     # for sensor in SENSORS:
     for idx in enumerate(coordinator.data):
@@ -38,25 +40,29 @@ async def async_setup_entry(
         if sens is None:
             _LOGGER.warning(idx[1])
         else:
-            entities.append(FiskerSensor(idx, sens, my_Fisker_data))
+            entities.append(OceanPulseBinarySensor(coordinator, idx, sens))
 
     # Add entities to Home Assistant
     async_add_entities(entities)
 
 
-class FiskerSensor(FiskerBaseEntity, CoordinatorEntity):
+class OceanPulseBinarySensor(OceanPulseBaseEntity, CoordinatorEntity):
     """Sensor used by all Fisker entities, inherits from CoordinatorEntity."""
 
-    def __init__(self, idx, sensor: FiskerSensorEntityDescription, client):
-        """Initialize My Fisker vehicle sensor."""
-        super().__init__(client._coordinator, idx)
+    def __init__(
+        self,
+        coordinator: OceanPulseCoordinator,
+        idx,
+        sensor: OceanPulseSensorEntityDescription,
+    ) -> None:
+        """Initialize Ocean Pulse vehicle sensor."""
+        super().__init__(coordinator, idx)
 
         self.idx = idx
-        self._data = client
-        self._coordinator = client._coordinator
-        self.entity_description = sensor
-        self._attr_unique_id = f"{self._coordinator.data['vin']}_{sensor.key}"
-        self._attr_name = f"{self._coordinator.alias} {sensor.name}"
+        self.vin = coordinator.vin
+        self.entity_description: OceanPulseSensorEntityDescription = sensor
+        self._attr_unique_id = f"{coordinator.vin}_{sensor.key}"
+        self._attr_name = f"{coordinator.alias} {sensor.name}"
 
         _LOGGER.info(self._attr_unique_id)
 
@@ -89,11 +95,11 @@ class FiskerSensor(FiskerBaseEntity, CoordinatorEntity):
 
         value = self._coordinator.data[self.idx[1]]
 
-        if "doors_" in self.entity_description.key:
+        if "DOOR_" in self.entity_description.key:
             self._attr_state = DOOR_LOCK[value][0]
-        elif "gear_in_park" in self.entity_description.key:
-            self._attr_state = GEAR_IN_PARK[value][0]
-        elif "climate_control_steering_wheel_heat" in self.entity_description.key:
+        # elif "gear_in_park" in self.entity_description.key:
+        #     self._attr_state = GEAR_IN_PARK[value][0]
+        elif "STEERING_WHEEL_HEAT" in self.entity_description.key:
             self._attr_state = CLIMATE_CONTROL_STEERING_WHEEL_HEAT[value][0]
         else:
             self._attr_state = value
@@ -111,7 +117,7 @@ class FiskerSensor(FiskerBaseEntity, CoordinatorEntity):
     def state(self):
         try:
             state = self._attr_state
-        except (KeyError, ValueError):
+        except KeyError, ValueError:
             return None
         return state
 
