@@ -33,7 +33,7 @@ Currently only sensor values are present
 # Installation and setup
 This integration can be installed through HACS.
 
-Alternatively, you can get the custom repository here: https://github.com/MichaelOE/home-assistant-ocean_pulse
+Alternatively, you can get the custom repository here: https://github.com/MichaelOE/homeassistant-ocean_pulse
 
 ## Setup
 - QR code: Enter QR code digits to connect to cloud
