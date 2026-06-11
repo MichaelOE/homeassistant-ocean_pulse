@@ -3,11 +3,15 @@
 
 ##### 2026-06-09: Renamed integration to 'Ocean Pulse' and testing towards Pulse connection...
 
+Custom integration for getting information about your Fisker Ocean presented in Home Assistant.
+
 ## BREAKING CHANGE
+Formerly known as "My Fisker".
+
+If you were using the old integration in HACS, this is the same project with a new name.
+
 Due to renaming of integration, it is strongly recommended to uninstall the 'My Fisker' integration, before installing the 'Ocean Pulse'.
 Sensors names and entities are renamed almost entirely.
-
-Custom integration for getting information about your Fisker Ocean presented in Home Assistant.
 
 ## Target
 The project is meant to get all available sensor values from Fisker Ocean cars via the Ocean Pulse device.
