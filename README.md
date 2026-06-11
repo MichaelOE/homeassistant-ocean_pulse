@@ -3,6 +3,10 @@
 
 ##### 2026-06-09: Renamed integration to 'Ocean Pulse' and testing towards Pulse connection...
 
+## BREAKING CHANGE
+Due to renaming of integration, it is strongly recommended to uninstall the 'My Fisker' integration, before installing the 'Ocean Pulse'.
+Sensors names and entities are renamed almost entirely.
+
 Custom integration for getting information about your Fisker Ocean presented in Home Assistant.
 
 ## Target
