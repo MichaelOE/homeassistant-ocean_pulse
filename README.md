@@ -1,20 +1,25 @@
-# Fisker Ocean Pulse custom integration for Home Assistant
+# Ocean Pulse – Fisker Ocean custom integration for Home Assistant
+
 [![BuyMeCoffee][buymecoffeebadge]][michaeloe-buymecoffee]
 
-##### 2026-06-09: Renamed integration to 'Ocean Pulse' and testing towards Pulse connection...
+> Formerly **My Fisker**  
+> Home Assistant integration for **Fisker Ocean** vehicles using the **Ocean Pulse** aftermarket device.
 
-Custom integration for getting information about your Fisker Ocean presented in Home Assistant.
+## ⚠️ Breaking change (June 2026)
 
-## BREAKING CHANGE
-Formerly known as "My Fisker".
+This integration has been renamed from **My Fisker** to **Ocean Pulse** and now uses the **Ocean Pulse device API**.
 
-If you were using the old integration in HACS, this is the same project with a new name.
+If you previously used **My Fisker** in HACS:
 
-Due to renaming of integration, it is strongly recommended to uninstall the 'My Fisker' integration, before installing the 'Ocean Pulse'.
-Sensors names and entities are renamed almost entirely.
+1. Uninstall **My Fisker**
+2. Install **Ocean Pulse**
+3. Reconfigure the integration
+
+Entity names and sensor IDs have changed significantly.
 
 ## Target
-The project is meant to get all available sensor values from Fisker Ocean cars via the Ocean Pulse device.
+
+The project provides sensor data from **Fisker Ocean** vehicles through the **Ocean Pulse** device for use in Home Assistant.
 
 ## Method
 At regularly intervals poll the cloud service for updated values.
