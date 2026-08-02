@@ -5,6 +5,7 @@
 > Formerly **My Fisker**  
 > Home Assistant integration for **Fisker Ocean** vehicles using the **Ocean Pulse** aftermarket device.
 
+## ⚠️ Still alpha - I don't have a Pulse yet (I'm in DK), so still using test-connections etc. NOT YET FULLY FUNCTIONAL
 ## ⚠️ Breaking change (June 2026)
 
 This integration has been renamed from **My Fisker** to **Ocean Pulse** and now uses the **Ocean Pulse device API**.
