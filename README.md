@@ -27,6 +27,15 @@ At regularly intervals poll the cloud service for updated values.
 
 ## Sensors
 All values exposed by the cloud api are available as sensors in Home Assistant.
+Location exposed also as device_tracker
+
+<img width="409" height="2094" alt="Ocean Pulse Sensors" src="https://github.com/user-attachments/assets/09ab8104-4679-42dd-9955-48910ec34923" />
+
+## Controls
+Various controls (not implemented fully yet)
+
+<img width="409" height="367" alt="image" src="https://github.com/user-attachments/assets/0fe557f0-0d68-4ec0-933b-c6b739f8c228" />
+
 
 # Features
 Currently only sensor values are present
