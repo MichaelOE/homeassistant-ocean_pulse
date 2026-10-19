@@ -50,7 +50,7 @@ BINARY_SENSORS: tuple[BinarySensorEntityDescription, ...] = (
         name="Lock status",
         icon="mdi:car-door-lock",
         device_class=BinarySensorDeviceClass.LOCK,
-        value=lambda data, key: data[key],
+        value=lambda data, key: str(data[key]).lower() == "unlocked",
     ),
     # Climate
     BinarySensorEntityDesc(

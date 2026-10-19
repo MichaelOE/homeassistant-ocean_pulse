@@ -6,7 +6,8 @@ DEVICE_MANUCFACTURER = "Fisker"
 DEVICE_MODEL = "Ocean (via Ocean Pulse)"
 
 API_TIMEOUT = 10
-DEFAULT_SCAN_INTERVAL = 60
+SCAN_INTERVAL_DEFAULT = 300
+SCAN_INTERVAL_RUNNING = 60
 
 URL_BASE = "https://www.oceanlinkpulse.com"
 
