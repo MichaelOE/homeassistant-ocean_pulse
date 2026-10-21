@@ -95,7 +95,7 @@ BINARY_SENSORS: tuple[BinarySensorEntityDescription, ...] = (
         device_class=BinarySensorDeviceClass.HEAT,
         value=lambda data, key: data[key],
     ),
-    # Charging
+    # Power/Charge
     BinarySensorEntityDesc(
         key="CHARGING",
         name="Charging",
@@ -118,6 +118,13 @@ BINARY_SENSORS: tuple[BinarySensorEntityDescription, ...] = (
         value=lambda data, key: data[key],
     ),
     # Connectivity
+    BinarySensorEntityDesc(
+        key="CAR_ASLEEP",
+        name="Car asleep",
+        icon="mdi:car-sleep",
+        device_class=BinarySensorDeviceClass.CONNECTIVITY,
+        value=lambda data, key: data[key],
+    ),
     BinarySensorEntityDesc(
         key="SCU_CONNECTED",
         name="SCU connected",

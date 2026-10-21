@@ -1,5 +1,6 @@
 """All sensor entities."""
 
+from homeassistant.components.drop_connect.binary_sensor import POWER
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntityDescription
 from homeassistant.const import (
     PERCENTAGE,
@@ -156,7 +157,7 @@ SENSORS_DIGITAL_TWIN: tuple[SensorEntityDescription, ...] = (
         native_unit_of_measurement=None,
         value=lambda data, key: data[key],
     ),
-    # Charging
+    # Energy/Charging
     SensorEntityDesc(
         key="AC_CHARGE_LAMP_COLOR",
         name="AC charge lamp color",
@@ -172,6 +173,15 @@ SENSORS_DIGITAL_TWIN: tuple[SensorEntityDescription, ...] = (
         device_class=None,
         native_unit_of_measurement=None,
         value=lambda data, key: data[key],
+    ),
+    SensorEntityDesc(
+        key="INSTANT_POWER_KW",
+        name="Instant power kW",
+        icon="mdi:flash",
+        device_class=None,
+        native_unit_of_measurement=POWER,
+        value=lambda data, key: data[key],
+        suggested_display_precision=2,
     ),
     # Location
     SensorEntityDesc(
@@ -193,6 +203,14 @@ SENSORS_DIGITAL_TWIN: tuple[SensorEntityDescription, ...] = (
         entity_registry_visible_default=False,
     ),
     # General / System
+    SensorEntityDesc(
+        key="NETWORK_STATE",
+        name="Network state",
+        icon="mdi:car-connected",
+        device_class=None,
+        native_unit_of_measurement=None,
+        value=lambda data, key: data[key],
+    ),
     SensorEntityDesc(
         key="POWER_MODE",
         name="Power mode",

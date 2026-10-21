@@ -23,7 +23,13 @@ from homeassistant.helpers.update_coordinator import (
 )
 
 from .api import AuthenticationError, OceanPulseAPI, PulseDeviceLink
-from .const import DEVICE_MANUCFACTURER, DEVICE_MODEL, DOMAIN
+from .const import (
+    DEVICE_MANUCFACTURER,
+    DEVICE_MODEL,
+    DOMAIN,
+    SCAN_INTERVAL_DEFAULT,
+    SCAN_INTERVAL_RUNNING,
+)
 from .stats import TripStats
 
 _LOGGER = logging.getLogger(__name__)
@@ -128,12 +134,15 @@ class OceanPulseCoordinator(DataUpdateCoordinator):
                 data["device_id"] = raw.get("device_id")
                 data["device_name"] = raw.get("device_name")
 
+                _LOGGER.debug("Fetched raw data: %s", raw)
+                _LOGGER.debug("Processed data: %s", data)
+
                 self._previous_update_interval = self.update_interval
 
                 if data.get("POWER_MODE") == "off":
-                    self.update_interval = timedelta(seconds=60)
+                    self.update_interval = timedelta(seconds=SCAN_INTERVAL_DEFAULT)
                 else:
-                    self.update_interval = timedelta(seconds=30)
+                    self.update_interval = timedelta(seconds=SCAN_INTERVAL_RUNNING)
 
                 if self.update_interval != self._previous_update_interval:
                     _LOGGER.info(

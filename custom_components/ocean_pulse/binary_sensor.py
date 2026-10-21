@@ -77,41 +77,29 @@ class OceanPulseBinarySensor(
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
 
+        self._attr_available = False
+
         if self._coordinator.data is None:
             _LOGGER.warning(
-                f"binary_sensor _handle_coordinator_update: ({self.entity_description.key})"
+                "Ocean Pulse - binary_sensor _handle_coordinator_update: (%s)",
+                self.entity_description.key,
             )
-            return
-
-        try:
-            value = self._coordinator.data[self.idx[1]]
-        except KeyError:
-            _LOGGER.error(
-                f"binary_sensor: _handle_coordinator_update KeyError: {self.idx[1]}"
-            )
-            return
-        except Exception as ex:
-            _LOGGER.error(
-                f"binary_sensor: _handle_coordinator_update Exception: {self.idx[1]} ({ex})"
-            )
-            return
-
-        value = self._coordinator.data[self.idx[1]]
-
-        # if "DOOR_" in self.entity_description.key:
-        #     self._attr_state = DOOR_LOCK[value][0]
-        # # elif "gear_in_park" in self.entity_description.key:
-        # #     self._attr_state = GEAR_IN_PARK[value][0]
-        # elif "STEERING_WHEEL_HEAT" in self.entity_description.key:
-        #     self._attr_state = CLIMATE_CONTROL_STEERING_WHEEL_HEAT[value][0]
-        # else:
-        #     self._attr_state = value
-
-        # self._attr_available = True
-        # # self._attr_is_on = True
-
-        self._attr_is_on = bool(value)
-        self._attr_available = True
+        else:
+            try:
+                value = self.entity_description.get_value(self._coordinator.data)
+                self._attr_is_on = bool(value)
+                self._attr_available = True
+            except KeyError:
+                _LOGGER.error(
+                    "KeyError: %s",
+                    self.idx[1],
+                )
+            except Exception as ex:
+                _LOGGER.error(
+                    "Exception: %s (%s)",
+                    self.idx[1],
+                    ex,
+                )
 
         self.async_write_ha_state()
 
