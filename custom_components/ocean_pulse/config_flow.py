@@ -15,6 +15,7 @@ from homeassistant.const import CONF_ALIAS
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.exceptions import HomeAssistantError
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import (
     OceanPulseAPI,
@@ -53,7 +54,7 @@ def _parse_pairing_input(raw: str) -> tuple[str, str]:
 async def validate_pairing(hass: HomeAssistant, data: dict[str, Any]) -> dict[str, Any]:
     """Redeem the pairing code and return config entry data (without VIN)."""
     code, base_url = _parse_pairing_input(data[CONF_PAIRING_CODE])
-    api = OceanPulseAPI()
+    api = OceanPulseAPI(async_get_clientsession(hass))
     try:
         payload = await api.redeem_pairing_code(code, base_url)
     except RequestError as ex:

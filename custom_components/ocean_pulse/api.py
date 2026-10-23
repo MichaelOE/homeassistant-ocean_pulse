@@ -33,8 +33,10 @@ class OceanPulseAPI:
 
     def __init__(
         self,
+        session: aiohttp.ClientSession,
         on_tokens_refreshed: Callable[[PulseDeviceLink], None] | None = None,
     ) -> None:
+        self._session = session
         self._on_tokens_refreshed = on_tokens_refreshed
         self._links: dict[str, PulseDeviceLink] = {}
         self._refresh_locks: dict[str, asyncio.Lock] = {}
@@ -60,21 +62,18 @@ class OceanPulseAPI:
         _LOGGER.debug("PulseCloud: redeeming pairing code %s", code)
 
         try:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(
-                    url, timeout=aiohttp.ClientTimeout(total=API_TIMEOUT)
-                ) as resp:
-                    if resp.status == 200:
-                        return await resp.json()
-                    if resp.status in (404, 410):
-                        raise RequestError(
-                            "Invalid or expired pairing code", resp.status
-                        )
-                    body = await resp.text()
-                    raise RequestError(
-                        f"Failed to redeem pairing code: {resp.status} {body}",
-                        resp.status,
-                    )
+            async with self._session.get(
+                url, timeout=aiohttp.ClientTimeout(total=API_TIMEOUT)
+            ) as resp:
+                if resp.status == 200:
+                    return await resp.json()
+                if resp.status in (404, 410):
+                    raise RequestError("Invalid or expired pairing code", resp.status)
+                body = await resp.text()
+                raise RequestError(
+                    f"Failed to redeem pairing code: {resp.status} {body}",
+                    resp.status,
+                )
         except aiohttp.ClientError as ex:
             raise RequestConnectionError("Connection failed") from ex
         except asyncio.TimeoutError as ex:
@@ -114,12 +113,9 @@ class OceanPulseAPI:
         try:
             headers = await self._auth_headers(link)
             url = f"{link.api_base_url}/api/devices/{link.car_device_id}/status"
-            async with (
-                aiohttp.ClientSession(
-                    timeout=aiohttp.ClientTimeout(total=API_TIMEOUT)
-                ) as session,
-                session.get(url, headers=headers) as resp,
-            ):
+            async with self._session.get(
+                url, headers=headers, timeout=aiohttp.ClientTimeout(total=API_TIMEOUT)
+            ) as resp:
                 if resp.status == 200:
                     data = await resp.json()
                     self.vehicle_statuses[vin] = data
@@ -146,15 +142,12 @@ class OceanPulseAPI:
             body: dict = {"cmd": cmd}
             if extra_data is not None:
                 body["extra_data"] = extra_data
-            async with (
-                aiohttp.ClientSession() as session,
-                session.post(
-                    url,
-                    headers=headers,
-                    json=body,
-                    timeout=aiohttp.ClientTimeout(total=15),
-                ) as resp,
-            ):
+            async with self._session.post(
+                url,
+                headers=headers,
+                json=body,
+                timeout=aiohttp.ClientTimeout(total=15),
+            ) as resp:
                 if resp.status in (200, 201):
                     return await resp.json()
                 if resp.status == 401:
@@ -194,14 +187,11 @@ class OceanPulseAPI:
 
         try:
             async with asyncio.timeout(15):
-                async with (
-                    aiohttp.ClientSession() as session,
-                    session.post(
-                        url,
-                        headers={"Content-Type": "application/json"},
-                        json={"refresh_token": link.refresh_token},
-                    ) as resp,
-                ):
+                async with self._session.post(
+                    url,
+                    headers={"Content-Type": "application/json"},
+                    json={"refresh_token": link.refresh_token},
+                ) as resp:
                     await self._handle_refresh_response(link, resp)
         except AuthenticationError:
             raise

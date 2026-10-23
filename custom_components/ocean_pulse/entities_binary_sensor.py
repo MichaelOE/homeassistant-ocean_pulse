@@ -4,6 +4,7 @@ from homeassistant.components.binary_sensor import (
     BinarySensorDeviceClass,
     BinarySensorEntityDescription,
 )
+from homeassistant.const import EntityCategory
 
 from . import OceanPulseBinarySensorEntityDescription as BinarySensorEntityDesc
 
@@ -11,38 +12,33 @@ BINARY_SENSORS: tuple[BinarySensorEntityDescription, ...] = (
     # Doors
     BinarySensorEntityDesc(
         key="DOOR_FL_OPEN",
-        name="Door front left",
+        name="Front left door",
         icon="mdi:car-door",
         device_class=BinarySensorDeviceClass.DOOR,
-        value=lambda data, key: data[key],
     ),
     BinarySensorEntityDesc(
         key="DOOR_FR_OPEN",
-        name="Door front right",
+        name="Front right door",
         icon="mdi:car-door",
         device_class=BinarySensorDeviceClass.DOOR,
-        value=lambda data, key: data[key],
     ),
     BinarySensorEntityDesc(
         key="DOOR_RL_OPEN",
-        name="Door rear left",
+        name="Rear left door",
         icon="mdi:car-door",
         device_class=BinarySensorDeviceClass.DOOR,
-        value=lambda data, key: data[key],
     ),
     BinarySensorEntityDesc(
         key="DOOR_RR_OPEN",
-        name="Door rear right",
+        name="Rear right door",
         icon="mdi:car-door",
         device_class=BinarySensorDeviceClass.DOOR,
-        value=lambda data, key: data[key],
     ),
     BinarySensorEntityDesc(
         key="TRUNK_OPEN",
         name="Trunk",
         icon="mdi:car-back",
-        device_class=BinarySensorDeviceClass.DOOR,
-        value=lambda data, key: data[key],
+        device_class=BinarySensorDeviceClass.OPENING,
     ),
     # Locks
     BinarySensorEntityDesc(
@@ -50,7 +46,7 @@ BINARY_SENSORS: tuple[BinarySensorEntityDescription, ...] = (
         name="Lock status",
         icon="mdi:car-door-lock",
         device_class=BinarySensorDeviceClass.LOCK,
-        value=lambda data, key: str(data[key]).lower() == "unlocked",
+        value_fn=lambda value: str(value).lower() == "unlocked",
     ),
     # Climate
     BinarySensorEntityDesc(
@@ -58,42 +54,36 @@ BINARY_SENSORS: tuple[BinarySensorEntityDescription, ...] = (
         name="Climate",
         icon="mdi:fan",
         device_class=BinarySensorDeviceClass.RUNNING,
-        value=lambda data, key: data[key],
     ),
     BinarySensorEntityDesc(
         key="AC_AUTO",
         name="AC auto",
         icon="mdi:air-conditioner",
         device_class=None,
-        value=lambda data, key: data[key],
     ),
     BinarySensorEntityDesc(
         key="RECIRCULATION",
         name="Recirculation",
         icon="mdi:air-filter",
         device_class=None,
-        value=lambda data, key: data[key],
     ),
     BinarySensorEntityDesc(
         key="FRONT_DEFROST",
         name="Front defrost",
         icon="mdi:car-defrost-front",
         device_class=BinarySensorDeviceClass.HEAT,
-        value=lambda data, key: data[key],
     ),
     BinarySensorEntityDesc(
         key="REAR_DEFROST",
         name="Rear defrost",
         icon="mdi:car-defrost-rear",
         device_class=BinarySensorDeviceClass.HEAT,
-        value=lambda data, key: data[key],
     ),
     BinarySensorEntityDesc(
         key="STEERING_WHEEL_HEAT",
         name="Steering wheel heat",
         icon="mdi:steering",
         device_class=BinarySensorDeviceClass.HEAT,
-        value=lambda data, key: data[key],
     ),
     # Power/Charge
     BinarySensorEntityDesc(
@@ -101,42 +91,38 @@ BINARY_SENSORS: tuple[BinarySensorEntityDescription, ...] = (
         name="Charging",
         icon="mdi:ev-plug-type2",
         device_class=BinarySensorDeviceClass.BATTERY_CHARGING,
-        value=lambda data, key: data[key],
     ),
     BinarySensorEntityDesc(
         key="AC_CHARGE_LAMP",
         name="AC charge lamp",
         icon="mdi:ev-plug-type2",
         device_class=BinarySensorDeviceClass.PLUG,
-        value=lambda data, key: data[key],
     ),
     BinarySensorEntityDesc(
         key="DC_CHARGE_LAMP",
         name="DC charge lamp",
         icon="mdi:ev-plug-ccs2",
         device_class=BinarySensorDeviceClass.PLUG,
-        value=lambda data, key: data[key],
     ),
     # Connectivity
     BinarySensorEntityDesc(
         key="CAR_ASLEEP",
         name="Car asleep",
-        icon="mdi:car-sleep",
+        icon="mdi:car-connected",
         device_class=BinarySensorDeviceClass.CONNECTIVITY,
-        value=lambda data, key: data[key],
     ),
     BinarySensorEntityDesc(
         key="SCU_CONNECTED",
         name="SCU connected",
         icon="mdi:car-connected",
         device_class=BinarySensorDeviceClass.CONNECTIVITY,
-        value=lambda data, key: data[key],
+        entity_category=EntityCategory.DIAGNOSTIC,
     ),
     BinarySensorEntityDesc(
         key="SYNC_ON",
         name="Sync",
         icon="mdi:sync",
         device_class=BinarySensorDeviceClass.RUNNING,
-        value=lambda data, key: data[key],
+        entity_category=EntityCategory.DIAGNOSTIC,
     ),
 )

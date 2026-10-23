@@ -1,4 +1,4 @@
-"""Zaptec component binary sensors."""
+"""Ocean Pulse component buttons."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ import logging
 
 from homeassistant.components.button import ButtonEntity
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant, callback
+from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
@@ -16,7 +16,7 @@ from . import (
     OceanPulseCoordinator,
 )
 from .api import AuthenticationError, OceanPulseAPI
-from .const import DEVICE_MANUCFACTURER, DEVICE_MODEL, DOMAIN
+from .const import DOMAIN
 from .entities_button import BUTTON_ENTITIES
 
 _LOGGER = logging.getLogger(__name__)
@@ -36,31 +36,11 @@ class OceanPulseButton(OceanPulseBaseEntity, ButtonEntity):
 
         self.entity_description = description
         self._coordinator: OceanPulseCoordinator = coordinator
-        self._state = 0
+        # self._state = 0
         self._attr_unique_id = f"{self._coordinator.vin}_{description.key}"
         self._attr_name = f"{self._coordinator.alias} {description.name}"
 
         _LOGGER.info(self._attr_unique_id)
-
-    @property
-    def name(self):
-        return self._attr_name
-
-    @property
-    def friendly_name(self):
-        return self.entity_description.name
-
-    # @property
-    # def is_on(self):
-    #     return self._state
-
-    @property
-    def state(self):
-        return self._state
-
-    @callback
-    def _handle_coordinator_update(self) -> None:
-        super()._handle_coordinator_update()
 
     async def async_press(self) -> None:
         """Press the button."""
@@ -95,5 +75,5 @@ async def async_setup_entry(
     coordinator: OceanPulseCoordinator = hass.data[DOMAIN][entry.entry_id]
 
     async_add_entities(
-        [OceanPulseButton(coordinator, but) for but in BUTTON_ENTITIES], True
+        [OceanPulseButton(coordinator, but) for but in BUTTON_ENTITIES]  # , True
     )

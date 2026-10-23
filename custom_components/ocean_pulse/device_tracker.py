@@ -111,8 +111,5 @@ DEVICE_TRACKER_SENSORS: tuple[SensorEntityDescription, ...] = (
         key="device_location",
         name="Location",
         icon="mdi:crosshairs-gps",
-        device_class=None,
-        native_unit_of_measurement=None,
-        value=lambda data, key: data[key],
     ),
 )

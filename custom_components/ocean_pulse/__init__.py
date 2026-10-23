@@ -15,12 +15,15 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_ALIAS, Platform
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import ConfigEntryAuthFailed
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.device_registry import DeviceInfo
+from homeassistant.helpers.typing import StateType
 from homeassistant.helpers.update_coordinator import (
     CoordinatorEntity,
     DataUpdateCoordinator,
     UpdateFailed,
 )
+from homeassistant.util import Any, Callable
 
 from .api import AuthenticationError, OceanPulseAPI, PulseDeviceLink
 from .const import (
@@ -60,7 +63,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             },
         )
 
-    api = OceanPulseAPI(on_tokens_refreshed=_async_persist_tokens)
+    api = OceanPulseAPI(
+        async_get_clientsession(hass), on_tokens_refreshed=_async_persist_tokens
+    )
+
     link = PulseDeviceLink(
         vin=data["vin"],
         device_id=data["device_id"],
@@ -214,60 +220,42 @@ class OceanPulseButtonEntityDescription(ButtonEntityDescription):
         self.command_data = command_data
 
 
-@dataclass
-class OceanPulseBinarySensorEntityDescription(BinarySensorEntityDescription):
+@dataclass(frozen=True, kw_only=True)
+class OceanPulseBinarySensorEntityDescription(SensorEntityDescription):
     """Describes Ocean Pulse binary sensor entity."""
 
-    def __init__(
-        self,
-        key: str,
-        name: str,
-        icon: str,
-        device_class,
-        value,
-    ) -> None:
-        super().__init__(key)
-        self.key = key
-        self.name = name
-        self.icon = icon
-        if device_class is not None:
-            self.device_class = device_class
-        self.value = value
-
-    def get_value(self, data):
-        return self.value(data, self.key)
+    value_fn: Callable[[Any], bool] = bool
 
 
-@dataclass
+# @dataclass
+# class XOceanPulseBinarySensorEntityDescription(BinarySensorEntityDescription):
+#     """Describes Ocean Pulse binary sensor entity."""
+
+#     def __init__(
+#         self,
+#         key: str,
+#         name: str,
+#         icon: str,
+#         device_class,
+#         value,
+#     ) -> None:
+#         super().__init__(key)
+#         self.key = key
+#         self.name = name
+#         self.icon = icon
+#         if device_class is not None:
+#             self.device_class = device_class
+#         self.value = value
+
+#     def get_value(self, data):
+#         return self.value(data, self.key)
+
+
+@dataclass(frozen=True, kw_only=True)
 class OceanPulseSensorEntityDescription(SensorEntityDescription):
     """Describes Ocean Pulse sensor entity."""
 
-    def __init__(
-        self,
-        key: str,
-        name: str,
-        icon: str,
-        device_class,
-        native_unit_of_measurement,
-        value,
-        format=None,
-        suggested_display_precision: int | None = None,
-        entity_registry_visible_default: bool = True,
-    ) -> None:
-        super().__init__(key)
-        self.key = key
-        self.name = name
-        self.icon = icon
-        if device_class is not None:
-            self.device_class = device_class
-        self.native_unit_of_measurement = native_unit_of_measurement
-        self.value = value
-        self.format = format
-        self.suggested_display_precision = suggested_display_precision
-        self.entity_registry_visible_default = entity_registry_visible_default
-
-    def get_digital_twin_value(self, data):
-        return self.value(data, self.key)
+    value_fn: Callable[[Any], StateType | datetime] = lambda value: value
 
     def get_car_settings_value(self, data):
         return self._find_in_array(
