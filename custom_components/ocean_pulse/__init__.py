@@ -4,11 +4,10 @@ from __future__ import annotations
 
 import asyncio
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 import logging
-from zoneinfo import ZoneInfo
 
-from homeassistant.components.binary_sensor import BinarySensorEntityDescription
+import homeassistant
 from homeassistant.components.button import ButtonEntityDescription
 from homeassistant.components.sensor import SensorEntityDescription
 from homeassistant.config_entries import ConfigEntry
@@ -80,9 +79,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     coordinator = OceanPulseCoordinator(hass, entry, api, data["vin"], data[CONF_ALIAS])
 
-    utc_time = datetime.now(timezone.utc)
-    local_time = utc_time.astimezone(ZoneInfo(hass.config.time_zone))
-    coordinator.time_difference_from_utc = local_time.utcoffset()
+    coordinator.time_difference_from_utc = homeassistant.util.dt.utcnow()
 
     await coordinator.async_config_entry_first_refresh()
 
