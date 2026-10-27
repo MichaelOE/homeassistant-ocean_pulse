@@ -44,19 +44,41 @@ class OceanPulseSensor(OceanPulseBaseEntity, CoordinatorEntity, SensorEntity):
         self._attr_name = f"{coordinator.alias} {sensor.name}"
 
     @property
+    def _data_key(self) -> str:
+        """Key used to look up this sensor's raw value in coordinator data."""
+        desc = self.entity_description
+        return desc.source_key or desc.key
+
+    @property
     def available(self) -> bool:
         """Return True if the coordinator succeeded and the value exists."""
         return (
-            super().available
-            and self.coordinator.data.get(self.entity_description.key) is not None
+            super().available and self.coordinator.data.get(self._data_key) is not None
         )
 
     @property
     def native_value(self) -> StateType | datetime:
         """Return the sensor value."""
         return self.entity_description.value_fn(
-            self.coordinator.data[self.entity_description.key]
+            self.coordinator.data.get(self._data_key)
         )
+
+    # @property
+    # def available(self) -> bool:
+    #     """Return True if the coordinator succeeded and the value exists."""
+    #     return (
+    #         super().available
+    #         and self.coordinator.data.get(self.entity_description.key) is not None
+    #     )
+
+    # @property
+    # def native_value(self) -> StateType | datetime:
+    #     """Return the sensor value."""
+
+    #     desc = self.entity_description
+    #     raw = self.coordinator.data[desc.source_key or desc.key]
+
+    #     return desc.value_fn(raw)
 
     @property
     def extra_state_attributes(self):
@@ -73,9 +95,10 @@ async def async_setup_entry(
     async_add_entities(
         OceanPulseSensor(coordinator, description)  # New sensor entity
         for description in SENSORS_DIGITAL_TWIN  # Loops the list
-        if description.key in coordinator.data  # IF there's data for the sensor
+        # if description.key in coordinator.data  # IF there's data for the sensor
     )
 
+    # Remove latitude and longitude sensors from the entity registry if they exist
     ent_reg = entity_registry.async_get(hass)
     for key in ("lat", "lon"):
         if entity_id := ent_reg.async_get_entity_id(

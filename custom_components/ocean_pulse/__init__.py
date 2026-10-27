@@ -142,10 +142,10 @@ class OceanPulseCoordinator(DataUpdateCoordinator):
 
                 self._previous_update_interval = self.update_interval
 
-                if data.get("POWER_MODE") == "off":
-                    self.update_interval = timedelta(seconds=SCAN_INTERVAL_DEFAULT)
-                else:
+                if data.get("POWER_MODE") != "off" or data.get("CHARGING"):
                     self.update_interval = timedelta(seconds=SCAN_INTERVAL_RUNNING)
+                else:
+                    self.update_interval = timedelta(seconds=SCAN_INTERVAL_DEFAULT)
 
                 if self.update_interval != self._previous_update_interval:
                     _LOGGER.info(
@@ -224,43 +224,9 @@ class OceanPulseBinarySensorEntityDescription(SensorEntityDescription):
     value_fn: Callable[[Any], bool] = bool
 
 
-# @dataclass
-# class XOceanPulseBinarySensorEntityDescription(BinarySensorEntityDescription):
-#     """Describes Ocean Pulse binary sensor entity."""
-
-#     def __init__(
-#         self,
-#         key: str,
-#         name: str,
-#         icon: str,
-#         device_class,
-#         value,
-#     ) -> None:
-#         super().__init__(key)
-#         self.key = key
-#         self.name = name
-#         self.icon = icon
-#         if device_class is not None:
-#             self.device_class = device_class
-#         self.value = value
-
-#     def get_value(self, data):
-#         return self.value(data, self.key)
-
-
 @dataclass(frozen=True, kw_only=True)
 class OceanPulseSensorEntityDescription(SensorEntityDescription):
     """Describes Ocean Pulse sensor entity."""
 
+    source_key: str | None = None
     value_fn: Callable[[Any], StateType | datetime] = lambda value: value
-
-    def get_car_settings_value(self, data):
-        return self._find_in_array(
-            data, self.key.replace("car_settings_", "").replace("_updated", "")
-        )
-
-    def _find_in_array(self, json_array: dict, name_to_search: str):
-        for item in json_array["data"]:
-            if item["name"] == name_to_search:
-                return item
-        return None
