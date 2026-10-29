@@ -85,25 +85,6 @@ BINARY_SENSORS: tuple[BinarySensorEntityDescription, ...] = (
         icon="mdi:steering",
         device_class=BinarySensorDeviceClass.HEAT,
     ),
-    # Power/Charge
-    BinarySensorEntityDesc(
-        key="CHARGING",
-        name="Charging",
-        icon="mdi:ev-plug-type2",
-        device_class=BinarySensorDeviceClass.BATTERY_CHARGING,
-    ),
-    BinarySensorEntityDesc(
-        key="AC_CHARGE_LAMP",
-        name="AC charge lamp",
-        icon="mdi:ev-plug-type2",
-        device_class=BinarySensorDeviceClass.PLUG,
-    ),
-    BinarySensorEntityDesc(
-        key="DC_CHARGE_LAMP",
-        name="DC charge lamp",
-        icon="mdi:ev-plug-ccs2",
-        device_class=BinarySensorDeviceClass.PLUG,
-    ),
     # Connectivity
     BinarySensorEntityDesc(
         key="CAR_ASLEEP",

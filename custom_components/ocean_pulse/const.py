@@ -50,3 +50,25 @@ DOOR_LOCK = {
     False: ["Closed", "mdi:car-door"],
     True: ["Open", "mdi:car-door"],
 }
+
+CHARGING_STATES = {
+    0: "0",
+    1: "1",
+    2: "2",
+    3: "3",
+    4: "4",
+    5: "5",
+}
+
+CHARGING_LAMP_STATES = {
+    0: "0",
+    1: "1",
+    2: "2",
+    3: "3",
+    4: "4",
+    5: "5",
+    6: "6",
+    7: "7",
+    8: "8",
+    9: "9",
+}

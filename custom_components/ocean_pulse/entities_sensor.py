@@ -17,7 +17,13 @@ from homeassistant.const import (
 )
 
 from . import OceanPulseSensorEntityDescription as SensorEntityDesc
-from .const import CLIMATE_CONTROL_SEAT_HEAT, LIST_CLIMATE_CONTROL_SEAT_HEAT
+from .const import (
+    CHARGING_LAMP_STATES,
+    CHARGING_LAMP_STATES,
+    CHARGING_STATES,
+    CLIMATE_CONTROL_SEAT_HEAT,
+    LIST_CLIMATE_CONTROL_SEAT_HEAT,
+)
 
 SENSORS_DIGITAL_TWIN: tuple[SensorEntityDescription, ...] = (
     # Battery / Range
@@ -185,9 +191,32 @@ SENSORS_DIGITAL_TWIN: tuple[SensorEntityDescription, ...] = (
         key="FAN_SPEED",
         name="Fan speed",
         icon="mdi:fan",
-        state_class=SensorStateClass.MEASUREMENT,
     ),
     # Energy/Charging
+    SensorEntityDesc(
+        key="CHARGING",
+        name="Charging",
+        icon="mdi:ev-plug-type2",
+        options=list(CHARGING_STATES.values()),
+        device_class=SensorDeviceClass.ENUM,
+        value_fn=lambda v: CHARGING_STATES.get(v) if v is not None else None,
+    ),
+    SensorEntityDesc(
+        key="AC_CHARGE_LAMP",
+        name="AC charge lamp",
+        icon="mdi:ev-plug-type2",
+        options=list(CHARGING_LAMP_STATES.values()),
+        device_class=SensorDeviceClass.ENUM,
+        value_fn=lambda v: CHARGING_LAMP_STATES.get(v) if v is not None else None,
+    ),
+    SensorEntityDesc(
+        key="DC_CHARGE_LAMP",
+        name="DC charge lamp",
+        icon="mdi:ev-plug-ccs2",
+        options=list(CHARGING_LAMP_STATES.values()),
+        device_class=SensorDeviceClass.ENUM,
+        value_fn=lambda v: CHARGING_LAMP_STATES.get(v) if v is not None else None,
+    ),
     SensorEntityDesc(
         key="AC_CHARGE_LAMP_COLOR",
         name="AC charge lamp color",
