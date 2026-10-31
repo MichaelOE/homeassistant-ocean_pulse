@@ -6,7 +6,7 @@ DEVICE_MANUCFACTURER = "Fisker"
 DEVICE_MODEL = "Ocean (via Ocean Pulse)"
 
 API_TIMEOUT = 10
-SCAN_INTERVAL_DEFAULT = 300
+SCAN_INTERVAL_DEFAULT = 180
 SCAN_INTERVAL_RUNNING = 60
 
 URL_BASE = "https://www.oceanlinkpulse.com"
@@ -25,8 +25,8 @@ COMMAND_CALIFORNIA_MODE = "california_mode"
 TRIM_EXTREME_ULTRA_BATT_CAPACITY = 106
 TRIM_SPORT_BATT_CAPACITY = 75
 
-LIST_CLIMATE_CONTROL_SEAT_HEAT = ["Unknown", "High", "Medium", "Low", "Off"]
-LIST_CLIMATE_CONTROL_STEERING_WHEEL_HEAT = ["Unknown", "Off", "On"]
+# CLIMATE_CONTROL_SEAT_HEAT = ["Unknown", "High", "Medium", "Low", "Off"]
+# LIST_CLIMATE_CONTROL_STEERING_WHEEL_HEAT = ["Unknown", "Off", "On"]
 
 CLIMATE_CONTROL_SEAT_HEAT = {
     0: ["Unknown", "mdi:help-rhombus-outline"],
@@ -36,36 +36,36 @@ CLIMATE_CONTROL_SEAT_HEAT = {
     4: ["Off", "mdi:car-seat-heater"],
 }
 
-CLIMATE_CONTROL_STEERING_WHEEL_HEAT = {
-    False: ["Off", "mdi:car-door"],
-    True: ["On", "mdi:car-door"],
-}
+# CLIMATE_CONTROL_STEERING_WHEEL_HEAT = {
+#     False: ["No Heat", "mdi:car-door"],
+#     True: ["Heating", "mdi:car-door"],
+# }
 
-GEAR_IN_PARK = {
-    False: ["Driving", "mdi:car-door"],
-    True: ["Parked", "mdi:car-door"],
-}
+# GEAR_IN_PARK = {
+#     False: ["Driving", "mdi:car-door"],
+#     True: ["Parked", "mdi:car-door"],
+# }
 
-DOOR_LOCK = {
-    False: ["Closed", "mdi:car-door"],
-    True: ["Open", "mdi:car-door"],
-}
+# DOOR_LOCK = {
+#     False: ["Closed", "mdi:car-door"],
+#     True: ["Open", "mdi:car-door"],
+# }
 
 CHARGING_STATES = {
-    0: "0",
-    1: "1",
+    0: "not_charging",
+    1: "charging",
     2: "2",
-    3: "3",
+    3: "standby",
     4: "4",
     5: "5",
 }
 
 CHARGING_LAMP_STATES = {
-    0: "0",
+    0: "off",
     1: "1",
-    2: "2",
-    3: "3",
-    4: "4",
+    2: "stopped",
+    3: "charging",
+    4: "standby",
     5: "5",
     6: "6",
     7: "7",

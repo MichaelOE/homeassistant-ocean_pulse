@@ -17,13 +17,7 @@ from homeassistant.const import (
 )
 
 from . import OceanPulseSensorEntityDescription as SensorEntityDesc
-from .const import (
-    CHARGING_LAMP_STATES,
-    CHARGING_LAMP_STATES,
-    CHARGING_STATES,
-    CLIMATE_CONTROL_SEAT_HEAT,
-    LIST_CLIMATE_CONTROL_SEAT_HEAT,
-)
+from .const import CHARGING_LAMP_STATES, CHARGING_STATES, CLIMATE_CONTROL_SEAT_HEAT
 
 SENSORS_DIGITAL_TWIN: tuple[SensorEntityDescription, ...] = (
     # Battery / Range
@@ -149,7 +143,7 @@ SENSORS_DIGITAL_TWIN: tuple[SensorEntityDescription, ...] = (
         name="Seat heat driver",
         icon="mdi:car-seat-heater",
         device_class=SensorDeviceClass.ENUM,
-        options=LIST_CLIMATE_CONTROL_SEAT_HEAT,
+        options=[name for name, _icon in CLIMATE_CONTROL_SEAT_HEAT.values()],
         value_fn=lambda value: CLIMATE_CONTROL_SEAT_HEAT[value][0],
     ),
     SensorEntityDesc(
@@ -157,7 +151,7 @@ SENSORS_DIGITAL_TWIN: tuple[SensorEntityDescription, ...] = (
         name="Seat heat passenger",
         icon="mdi:car-seat-heater",
         device_class=SensorDeviceClass.ENUM,
-        options=LIST_CLIMATE_CONTROL_SEAT_HEAT,
+        options=[name for name, _icon in CLIMATE_CONTROL_SEAT_HEAT.values()],
         value_fn=lambda value: CLIMATE_CONTROL_SEAT_HEAT[value][0],
     ),
     SensorEntityDesc(
@@ -165,7 +159,7 @@ SENSORS_DIGITAL_TWIN: tuple[SensorEntityDescription, ...] = (
         name="Seat heat rear left",
         icon="mdi:car-seat-heater",
         device_class=SensorDeviceClass.ENUM,
-        options=LIST_CLIMATE_CONTROL_SEAT_HEAT,
+        options=[name for name, _icon in CLIMATE_CONTROL_SEAT_HEAT.values()],
         value_fn=lambda value: CLIMATE_CONTROL_SEAT_HEAT[value][0],
     ),
     SensorEntityDesc(
@@ -173,7 +167,7 @@ SENSORS_DIGITAL_TWIN: tuple[SensorEntityDescription, ...] = (
         name="Seat heat rear right",
         icon="mdi:car-seat-heater",
         device_class=SensorDeviceClass.ENUM,
-        options=LIST_CLIMATE_CONTROL_SEAT_HEAT,
+        options=[name for name, _icon in CLIMATE_CONTROL_SEAT_HEAT.values()],
         value_fn=lambda value: CLIMATE_CONTROL_SEAT_HEAT[value][0],
     ),
     # Climate
@@ -191,6 +185,7 @@ SENSORS_DIGITAL_TWIN: tuple[SensorEntityDescription, ...] = (
         key="FAN_SPEED",
         name="Fan speed",
         icon="mdi:fan",
+        state_class=SensorStateClass.MEASUREMENT,
     ),
     # Energy/Charging
     SensorEntityDesc(
