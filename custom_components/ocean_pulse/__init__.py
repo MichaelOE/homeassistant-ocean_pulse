@@ -142,7 +142,7 @@ class OceanPulseCoordinator(DataUpdateCoordinator):
 
                 self._previous_update_interval = self.update_interval
 
-                if data.get("POWER_MODE") != "off" or data.get("CHARGING"):
+                if data.get("POWER_MODE") != "off" or data.get("CHARGING") in (1, 2):
                     self.update_interval = timedelta(seconds=SCAN_INTERVAL_RUNNING)
                 else:
                     self.update_interval = timedelta(seconds=SCAN_INTERVAL_DEFAULT)

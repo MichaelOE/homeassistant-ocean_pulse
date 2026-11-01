@@ -53,9 +53,9 @@ CLIMATE_CONTROL_SEAT_HEAT = {
 
 CHARGING_STATES = {
     0: "not_charging",
-    1: "charging",
-    2: "2",
-    3: "standby",
+    1: "ac_charging",
+    2: "dc_charging",
+    3: "standby",  # cable connected, not charging
     4: "4",
     5: "5",
 }
@@ -63,9 +63,9 @@ CHARGING_STATES = {
 CHARGING_LAMP_STATES = {
     0: "off",
     1: "1",
-    2: "stopped",
-    3: "charging",
-    4: "standby",
+    2: "stopped",  # green: AC, plugged in, charging stopped
+    3: "charging",  # green_breath
+    4: "standby",  # blue: connected, not charging
     5: "5",
     6: "6",
     7: "7",
