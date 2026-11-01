@@ -35,7 +35,7 @@ class OceanPulseBinarySensor(
         self.vin = coordinator.vin
         self.entity_description: OceanPulseBinarySensorEntityDescription = sensor
         self._attr_unique_id = f"{coordinator.vin}_{sensor.key}"
-        self._attr_name = f"{coordinator.alias} {sensor.name}"
+        self._attr_name = sensor.name
 
         _LOGGER.info(self._attr_unique_id)
 

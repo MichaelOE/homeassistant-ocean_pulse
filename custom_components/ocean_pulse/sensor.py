@@ -41,7 +41,7 @@ class OceanPulseSensor(OceanPulseBaseEntity, CoordinatorEntity, SensorEntity):
         self.vin = coordinator.vin
         self.entity_description = sensor
         self._attr_unique_id = f"{coordinator.vin}_{sensor.key}"
-        self._attr_name = f"{coordinator.alias} {sensor.name}"
+        self._attr_name = sensor.name
 
     @property
     def _data_key(self) -> str:
@@ -62,23 +62,6 @@ class OceanPulseSensor(OceanPulseBaseEntity, CoordinatorEntity, SensorEntity):
         return self.entity_description.value_fn(
             self.coordinator.data.get(self._data_key)
         )
-
-    # @property
-    # def available(self) -> bool:
-    #     """Return True if the coordinator succeeded and the value exists."""
-    #     return (
-    #         super().available
-    #         and self.coordinator.data.get(self.entity_description.key) is not None
-    #     )
-
-    # @property
-    # def native_value(self) -> StateType | datetime:
-    #     """Return the sensor value."""
-
-    #     desc = self.entity_description
-    #     raw = self.coordinator.data[desc.source_key or desc.key]
-
-    #     return desc.value_fn(raw)
 
     @property
     def extra_state_attributes(self):

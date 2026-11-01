@@ -189,11 +189,6 @@ class OceanPulseBaseEntity(CoordinatorEntity):
             name=coordinator.alias,
         )
 
-    @property
-    def device_info(self) -> DeviceInfo | None:
-        """Return device information about this entity."""
-        return self._attr_device_info
-
 
 @dataclass
 class OceanPulseButtonEntityDescription(ButtonEntityDescription):
