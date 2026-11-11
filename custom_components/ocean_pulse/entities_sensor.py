@@ -1,14 +1,15 @@
 """All sensor entities."""
 
+from datetime import datetime
+
 from homeassistant.components.sensor import (
-    EntityCategory,
     SensorDeviceClass,
     SensorEntityDescription,
     SensorStateClass,
-    datetime,
 )
 from homeassistant.const import (
     PERCENTAGE,
+    EntityCategory,
     UnitOfElectricPotential,
     UnitOfEnergy,
     UnitOfLength,
