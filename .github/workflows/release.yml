@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - custom_components/ocean_pulse/manifest.json
+      workflow_dispatch:
 
 permissions:
   contents: write
