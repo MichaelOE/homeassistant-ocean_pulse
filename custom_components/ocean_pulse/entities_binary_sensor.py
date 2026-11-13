@@ -57,14 +57,8 @@ BINARY_SENSORS: tuple[BinarySensorEntityDescription, ...] = (
     ),
     BinarySensorEntityDesc(
         key="AC_AUTO",
-        name="AC auto",
+        name="Air conditioning auto",
         icon="mdi:air-conditioner",
-        device_class=None,
-    ),
-    BinarySensorEntityDesc(
-        key="RECIRCULATION",
-        name="Recirculation",
-        icon="mdi:air-filter",
         device_class=None,
     ),
     BinarySensorEntityDesc(

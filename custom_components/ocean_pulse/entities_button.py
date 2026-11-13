@@ -21,7 +21,7 @@ BUTTON_ENTITIES: list[EntityDescription] = [
     ),
     OceanPulseButtonEntityDescription(
         key="trunk_activate",
-        name="Activate Trunk",
+        name="Trunk",
         translation_key="trunk_activate",
         icon="mdi:car-back",
         command="PKC_TRUNK_ACTIVATE",

@@ -77,14 +77,6 @@ class DeviceTrackerSensor(OceanPulseBaseEntity, TrackerEntity):
             return None
 
     @property
-    def battery_level(self) -> float:
-        """Return battery_level of the device."""
-        try:
-            return self._coordinator.data["SOC"]
-        except KeyError:
-            return None
-
-    @property
     def source_type(self):
         """Return the source type, eg gps or router, of the device."""
         return SourceType.GPS

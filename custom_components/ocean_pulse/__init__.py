@@ -225,3 +225,4 @@ class OceanPulseSensorEntityDescription(SensorEntityDescription):
 
     source_key: str | None = None
     value_fn: Callable[[Any], StateType | datetime] = lambda value: value
+    attrs_fn: Callable[[Any], dict[str, Any]] | None = None

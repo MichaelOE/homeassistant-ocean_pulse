@@ -5,6 +5,7 @@ import logging
 from homeassistant.components.binary_sensor import BinarySensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import entity_registry
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -75,3 +76,11 @@ async def async_setup_entry(
         for description in BINARY_SENSORS  # Loops the list
         if description.key in coordinator.data  # IF there's data for the sensor
     )
+
+    # Remove binary sensors that have moved to the sensor platform
+    ent_reg = entity_registry.async_get(hass)
+    for key in ("RECIRCULATION",):
+        if entity_id := ent_reg.async_get_entity_id(
+            "binary_sensor", DOMAIN, f"{coordinator.vin}_{key}"
+        ):
+            ent_reg.async_remove(entity_id)

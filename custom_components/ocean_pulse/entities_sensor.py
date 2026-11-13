@@ -1,6 +1,9 @@
 """All sensor entities."""
 
 from datetime import datetime
+from itertools import pairwise
+import logging
+from typing import Any
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -15,17 +18,51 @@ from homeassistant.const import (
     UnitOfLength,
     UnitOfPower,
     UnitOfTemperature,
+    UnitOfTime,
 )
+from homeassistant.util import location as location_util
 
 from . import OceanPulseSensorEntityDescription as SensorEntityDesc
 from .const import CHARGING_LAMP_STATES, CHARGING_STATES, CLIMATE_CONTROL_SEAT_HEAT
+
+_LOGGER = logging.getLogger(__name__)
+
+
+def _trip_distance_km(trip: Any) -> float | None:
+    """Return the length of the trip route of [lat, lon] points in kilometers."""
+    # The current_trip payload is undocumented, so anything unexpected is unknown
+    if not isinstance(trip, dict) or not isinstance(route := trip.get("route"), list):
+        return None
+    if not all(
+        isinstance(point, list)
+        and len(point) == 2
+        and all(isinstance(coord, int | float) for coord in point)
+        for point in route
+    ):
+        _LOGGER.debug("Unexpected current_trip route format: %s", route[:3])
+        return None
+    meters = sum(
+        location_util.distance(lat1, lon1, lat2, lon2) or 0.0
+        for (lat1, lon1), (lat2, lon2) in pairwise(route)
+    )
+    return round(meters / 1000, 2)
+
+
+def _trip_attributes(trip: Any) -> dict[str, Any]:
+    """Expose the raw current_trip payload so its real shape can be inspected."""
+    if not isinstance(trip, dict):
+        return {"raw": trip}
+    attrs = dict(trip)
+    if isinstance(route := trip.get("route"), list):
+        attrs["route_points"] = len(route)
+    return attrs
+
 
 SENSORS_DIGITAL_TWIN: tuple[SensorEntityDescription, ...] = (
     # Battery / Range
     SensorEntityDesc(
         key="SOC",
         name="HV battery",
-        icon="mdi:battery-70",
         device_class=SensorDeviceClass.BATTERY,
         native_unit_of_measurement=PERCENTAGE,
         state_class=SensorStateClass.MEASUREMENT,
@@ -34,7 +71,6 @@ SENSORS_DIGITAL_TWIN: tuple[SensorEntityDescription, ...] = (
         key="SOH",
         name="HV battery health",
         icon="mdi:battery-heart",
-        device_class=SensorDeviceClass.BATTERY,
         native_unit_of_measurement=PERCENTAGE,
         state_class=SensorStateClass.MEASUREMENT,
         entity_category=EntityCategory.DIAGNOSTIC,
@@ -97,6 +133,17 @@ SENSORS_DIGITAL_TWIN: tuple[SensorEntityDescription, ...] = (
         suggested_display_precision=1,
     ),
     SensorEntityDesc(
+        key="current_trip",
+        name="Current trip",
+        icon="mdi:map-marker-path",
+        device_class=SensorDeviceClass.DISTANCE,
+        native_unit_of_measurement=UnitOfLength.KILOMETERS,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
+        value_fn=_trip_distance_km,
+        attrs_fn=_trip_attributes,
+    ),
+    SensorEntityDesc(
         key="BATTERY_12V",
         name="12V battery voltage",
         icon="mdi:car-battery",
@@ -117,6 +164,14 @@ SENSORS_DIGITAL_TWIN: tuple[SensorEntityDescription, ...] = (
     SensorEntityDesc(
         key="OUTDOOR_TEMP",
         name="Outdoor temperature",
+        icon="mdi:thermometer",
+        device_class=SensorDeviceClass.TEMPERATURE,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        state_class=SensorStateClass.MEASUREMENT,
+    ),
+    SensorEntityDesc(
+        key="CABIN_TEMP",
+        name="Cabin temperature",
         icon="mdi:thermometer",
         device_class=SensorDeviceClass.TEMPERATURE,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
@@ -179,7 +234,7 @@ SENSORS_DIGITAL_TWIN: tuple[SensorEntityDescription, ...] = (
     ),
     SensorEntityDesc(
         key="AC_STATE",
-        name="AC state",
+        name="Air conditioning state",
         icon="mdi:air-conditioner",
     ),
     SensorEntityDesc(
@@ -187,6 +242,12 @@ SENSORS_DIGITAL_TWIN: tuple[SensorEntityDescription, ...] = (
         name="Fan speed",
         icon="mdi:fan",
         state_class=SensorStateClass.MEASUREMENT,
+    ),
+    SensorEntityDesc(
+        key="RECIRCULATION",
+        name="Recirculation",
+        icon="mdi:air-filter",
+        device_class=None,
     ),
     # Energy/Charging
     SensorEntityDesc(
@@ -254,5 +315,29 @@ SENSORS_DIGITAL_TWIN: tuple[SensorEntityDescription, ...] = (
         device_class=SensorDeviceClass.TIMESTAMP,
         entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=datetime.fromisoformat,
+    ),
+    SensorEntityDesc(
+        key="LAST_PARKED_POLL_AT",
+        name="Last parked poll",
+        icon="mdi:clock-outline",
+        device_class=SensorDeviceClass.TIMESTAMP,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=datetime.fromisoformat,
+    ),
+    SensorEntityDesc(
+        key="PARKED_POLL_INTERVAL_S",
+        name="Parked poll interval",
+        icon="mdi:timer-check-outline",
+        device_class=SensorDeviceClass.DURATION,
+        native_unit_of_measurement=UnitOfTime.SECONDS,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        suggested_display_precision=0,
+    ),
+    SensorEntityDesc(
+        key="device_name",
+        name="Device name",
+        icon="mdi:car-info",
+        device_class=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
     ),
 )

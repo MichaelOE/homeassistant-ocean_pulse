@@ -28,6 +28,8 @@ class OceanPulseSensor(OceanPulseBaseEntity, CoordinatorEntity, SensorEntity):
     """Sensor entity for Ocean Pulse."""
 
     entity_description: OceanPulseSensorEntityDescription
+    # The trip route grows with every poll and would bloat the recorder database
+    _unrecorded_attributes = frozenset({"route"})
 
     def __init__(
         self,
@@ -65,7 +67,9 @@ class OceanPulseSensor(OceanPulseBaseEntity, CoordinatorEntity, SensorEntity):
 
     @property
     def extra_state_attributes(self):
-        return None
+        if (attrs_fn := self.entity_description.attrs_fn) is None or not self.available:
+            return None
+        return attrs_fn(self.coordinator.data[self._data_key])
 
 
 async def async_setup_entry(
