@@ -43,7 +43,9 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          git log -1 --format=%B "$GITHUB_SHA" > notes.md
           gh release create "${{ steps.ver.outputs.tag }}" \
             --target "$GITHUB_SHA" \
             --title "${{ steps.ver.outputs.tag }}" \
+            --notes-file notes.md \
             --generate-notes
