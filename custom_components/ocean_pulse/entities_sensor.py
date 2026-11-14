@@ -1,8 +1,6 @@
 """All sensor entities."""
 
 from datetime import datetime
-from itertools import pairwise
-import logging
 from typing import Any
 
 from homeassistant.components.sensor import (
@@ -20,42 +18,26 @@ from homeassistant.const import (
     UnitOfTemperature,
     UnitOfTime,
 )
-from homeassistant.util import location as location_util
 
 from . import OceanPulseSensorEntityDescription as SensorEntityDesc
 from .const import CHARGING_LAMP_STATES, CHARGING_STATES, CLIMATE_CONTROL_SEAT_HEAT
 
-_LOGGER = logging.getLogger(__name__)
-
 
 def _trip_distance_km(trip: Any) -> float | None:
-    """Return the length of the trip route of [lat, lon] points in kilometers."""
+    """Return the distance driven on the current trip in kilometers."""
     # The current_trip payload is undocumented, so anything unexpected is unknown
-    if not isinstance(trip, dict) or not isinstance(route := trip.get("route"), list):
-        return None
-    if not all(
-        isinstance(point, list)
-        and len(point) == 2
-        and all(isinstance(coord, int | float) for coord in point)
-        for point in route
+    if not isinstance(trip, dict) or not isinstance(
+        distance := trip.get("distanceKm"), int | float
     ):
-        _LOGGER.debug("Unexpected current_trip route format: %s", route[:3])
         return None
-    meters = sum(
-        location_util.distance(lat1, lon1, lat2, lon2) or 0.0
-        for (lat1, lon1), (lat2, lon2) in pairwise(route)
-    )
-    return round(meters / 1000, 2)
+    return distance
 
 
 def _trip_attributes(trip: Any) -> dict[str, Any]:
-    """Expose the raw current_trip payload so its real shape can be inspected."""
+    """Expose the raw current_trip payload while the format is still experimental."""
     if not isinstance(trip, dict):
         return {"raw": trip}
-    attrs = dict(trip)
-    if isinstance(route := trip.get("route"), list):
-        attrs["route_points"] = len(route)
-    return attrs
+    return dict(trip)
 
 
 SENSORS_DIGITAL_TWIN: tuple[SensorEntityDescription, ...] = (

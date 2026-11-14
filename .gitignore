@@ -1,2 +1,2 @@
-*.pyc
+/custom_components/ocean_pulse/__pycache__
 *.pyc

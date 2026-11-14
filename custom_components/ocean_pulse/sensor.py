@@ -28,8 +28,6 @@ class OceanPulseSensor(OceanPulseBaseEntity, CoordinatorEntity, SensorEntity):
     """Sensor entity for Ocean Pulse."""
 
     entity_description: OceanPulseSensorEntityDescription
-    # The trip route grows with every poll and would bloat the recorder database
-    _unrecorded_attributes = frozenset({"route"})
 
     def __init__(
         self,
