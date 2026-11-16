@@ -125,6 +125,7 @@ class OceanPulseCoordinator(DataUpdateCoordinator):
         self.tripstats: TripStats = TripStats()
         self.chargestats: TripStats = TripStats()
         self._last_trip: dict[str, Any] | None = None
+        self._previous_trip: dict[str, Any] | None = None
 
     async def _async_update_data(self):
         """Fetch data from API."""
@@ -138,11 +139,21 @@ class OceanPulseCoordinator(DataUpdateCoordinator):
                 data["device_id"] = raw.get("device_id")
                 data["device_name"] = raw.get("device_name")
 
-                # The API clears current_trip when parked; keep the last trip visible
-                if data.get("current_trip") is not None:
-                    self._last_trip = data["current_trip"]
+                # The API keeps a finished trip as PAUSED for hours before clearing
+                # current_trip, so the clear marks the end; keep the last trip visible
+                if (trip := data.get("current_trip")) is not None:
+                    # A paused trip keeps its start time, so a new start time also
+                    # means the last trip has finished, in case the clear was missed
+                    if self._last_trip is not None and trip.get(
+                        "startedAtMs"
+                    ) != self._last_trip.get("startedAtMs"):
+                        self._previous_trip = self._last_trip
+                    self._last_trip = trip
                 else:
+                    if self._last_trip is not None:
+                        self._previous_trip = self._last_trip
                     data["current_trip"] = self._last_trip
+                data["previous_trip"] = self._previous_trip
 
                 _LOGGER.debug("Fetched raw data: %s", raw)
                 _LOGGER.debug("Processed data: %s", data)

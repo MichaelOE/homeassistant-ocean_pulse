@@ -1,6 +1,7 @@
 """All sensor entities."""
 
-from datetime import datetime
+from collections.abc import Callable
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from homeassistant.components.sensor import (
@@ -13,8 +14,10 @@ from homeassistant.const import (
     EntityCategory,
     UnitOfElectricPotential,
     UnitOfEnergy,
+    UnitOfEnergyDistance,
     UnitOfLength,
     UnitOfPower,
+    UnitOfSpeed,
     UnitOfTemperature,
     UnitOfTime,
 )
@@ -23,21 +26,46 @@ from . import OceanPulseSensorEntityDescription as SensorEntityDesc
 from .const import CHARGING_LAMP_STATES, CHARGING_STATES, CLIMATE_CONTROL_SEAT_HEAT
 
 
-def _trip_distance_km(trip: Any) -> float | None:
-    """Return the distance driven on the current trip in kilometers."""
-    # The current_trip payload is undocumented, so anything unexpected is unknown
-    if not isinstance(trip, dict) or not isinstance(
-        distance := trip.get("distanceKm"), int | float
-    ):
+def _trip_value(field: str) -> Callable[[Any], float | None]:
+    """Return a function that reads a numeric field from a trip payload."""
+
+    def _value(trip: Any) -> float | None:
+        # The trip payload is undocumented, so anything unexpected is unknown
+        if not isinstance(trip, dict) or not isinstance(
+            value := trip.get(field), int | float
+        ):
+            return None
+        return value
+
+    return _value
+
+
+def _trip_started_at(trip: Any) -> datetime | None:
+    """Return when the trip started."""
+    if (started_ms := _trip_value("startedAtMs")(trip)) is None:
         return None
-    return distance
+    return datetime.fromtimestamp(started_ms / 1000, UTC)
+
+
+_TRIP_TIMESTAMP_FIELDS = {"startedAtMs": "started_at", "pausedAtMs": "paused_at"}
+_TRIP_DURATION_FIELDS = {"drivingMs": "driving_time", "parkedMs": "parked_time"}
 
 
 def _trip_attributes(trip: Any) -> dict[str, Any]:
-    """Expose the raw current_trip payload while the format is still experimental."""
+    """Expose the current_trip payload with readable times while it is experimental."""
     if not isinstance(trip, dict):
         return {"raw": trip}
-    return dict(trip)
+    attrs = {}
+    for field, value in trip.items():
+        if not isinstance(value, int | float):
+            attrs[field] = value
+        elif name := _TRIP_TIMESTAMP_FIELDS.get(field):
+            attrs[name] = datetime.fromtimestamp(value / 1000, UTC)
+        elif name := _TRIP_DURATION_FIELDS.get(field):
+            attrs[name] = str(timedelta(seconds=round(value / 1000)))
+        else:
+            attrs[field] = value
+    return attrs
 
 
 SENSORS_DIGITAL_TWIN: tuple[SensorEntityDescription, ...] = (
@@ -122,8 +150,106 @@ SENSORS_DIGITAL_TWIN: tuple[SensorEntityDescription, ...] = (
         native_unit_of_measurement=UnitOfLength.KILOMETERS,
         state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=1,
-        value_fn=_trip_distance_km,
+        value_fn=_trip_value("distanceKm"),
         attrs_fn=_trip_attributes,
+    ),
+    # Previous trip: finished trip values, suited for long-term statistics
+    SensorEntityDesc(
+        key="previous_trip_distance",
+        source_key="previous_trip",
+        name="Previous trip distance",
+        icon="mdi:map-marker-path",
+        device_class=SensorDeviceClass.DISTANCE,
+        native_unit_of_measurement=UnitOfLength.KILOMETERS,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
+        value_fn=_trip_value("distanceKm"),
+    ),
+    SensorEntityDesc(
+        key="previous_trip_energy",
+        source_key="previous_trip",
+        name="Previous trip energy",
+        icon="mdi:lightning-bolt",
+        # The energy device class does not allow the measurement state class
+        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=2,
+        value_fn=_trip_value("energyKwh"),
+    ),
+    SensorEntityDesc(
+        key="previous_trip_regen",
+        source_key="previous_trip",
+        name="Previous trip regeneration",
+        icon="mdi:battery-charging",
+        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=2,
+        value_fn=_trip_value("regenKwh"),
+    ),
+    SensorEntityDesc(
+        key="previous_trip_efficiency",
+        source_key="previous_trip",
+        name="Previous trip efficiency",
+        icon="mdi:leaf",
+        device_class=SensorDeviceClass.ENERGY_DISTANCE,
+        native_unit_of_measurement=UnitOfEnergyDistance.KM_PER_KILO_WATT_HOUR,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=2,
+        value_fn=_trip_value("efficiencyKmPerKwh"),
+    ),
+    SensorEntityDesc(
+        key="previous_trip_avg_speed",
+        source_key="previous_trip",
+        name="Previous trip average speed",
+        icon="mdi:speedometer-medium",
+        device_class=SensorDeviceClass.SPEED,
+        native_unit_of_measurement=UnitOfSpeed.KILOMETERS_PER_HOUR,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=0,
+        value_fn=_trip_value("avgSpeedKph"),
+    ),
+    SensorEntityDesc(
+        key="previous_trip_max_speed",
+        source_key="previous_trip",
+        name="Previous trip max speed",
+        icon="mdi:speedometer",
+        device_class=SensorDeviceClass.SPEED,
+        native_unit_of_measurement=UnitOfSpeed.KILOMETERS_PER_HOUR,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=0,
+        value_fn=_trip_value("maxSpeedKph"),
+    ),
+    SensorEntityDesc(
+        key="previous_trip_driving_time",
+        source_key="previous_trip",
+        name="Previous trip driving time",
+        icon="mdi:timer-outline",
+        device_class=SensorDeviceClass.DURATION,
+        native_unit_of_measurement=UnitOfTime.MILLISECONDS,
+        suggested_unit_of_measurement=UnitOfTime.MINUTES,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=0,
+        value_fn=_trip_value("drivingMs"),
+    ),
+    SensorEntityDesc(
+        key="previous_trip_parked_time",
+        source_key="previous_trip",
+        name="Previous trip parked time",
+        icon="mdi:timer-pause-outline",
+        device_class=SensorDeviceClass.DURATION,
+        native_unit_of_measurement=UnitOfTime.MILLISECONDS,
+        suggested_unit_of_measurement=UnitOfTime.MINUTES,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=0,
+        value_fn=_trip_value("parkedMs"),
+    ),
+    SensorEntityDesc(
+        key="previous_trip_start",
+        source_key="previous_trip",
+        name="Previous trip start",
+        icon="mdi:clock-start",
+        device_class=SensorDeviceClass.TIMESTAMP,
+        value_fn=_trip_started_at,
     ),
     SensorEntityDesc(
         key="BATTERY_12V",
