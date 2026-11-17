@@ -59,7 +59,6 @@ class OceanPulseAPI:
     async def redeem_pairing_code(self, code: str, base_url: str = URL_BASE) -> dict:
         """Redeem a pairing code and return the raw device link payload."""
         url = f"{base_url}/api/pairing/{code}"
-        _LOGGER.debug("PulseCloud: redeeming pairing code %s", code)
 
         try:
             async with self._session.get(
@@ -197,7 +196,7 @@ class OceanPulseAPI:
             raise
         except TimeoutError:
             _LOGGER.debug(
-                "PulseCloud: refresh timed out - keeping tokens, will retry later"
+                "PulseCloud: refresh timed out - will retry later with same tokens"
             )
         except aiohttp.ClientError as e:
             _LOGGER.debug("PulseCloud: network error during refresh - %s", e)

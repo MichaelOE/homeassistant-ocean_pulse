@@ -24,16 +24,15 @@ async def async_setup_entry(
     """Add sensors for passed config_entry in HA."""
 
     coordinator: OceanPulseCoordinator = hass.data[DOMAIN][config_entry.entry_id]
-    entities: list[DeviceTrackerSensor] = []
 
-    # Fetch initial data so we have data when entities subscribe
-    # await coordinator.async_config_entry_first_refresh()
-
-    sens = DEVICE_TRACKER_SENSORS[0]
-    entities.append(DeviceTrackerSensor(sens, coordinator))
-
-    if entities:
-        async_add_entities(entities)
+    entities = [DeviceTrackerSensor(get_sensor_by_key("device_location"), coordinator)]
+    _LOGGER.debug(
+        "Setting up %d device trackers for %s (VIN ...%s)",
+        len(entities),
+        coordinator.alias,
+        coordinator.vin[-5:],
+    )
+    async_add_entities(entities)
 
 
 class DeviceTrackerSensor(OceanPulseBaseEntity, TrackerEntity):
@@ -52,8 +51,6 @@ class DeviceTrackerSensor(OceanPulseBaseEntity, TrackerEntity):
         self.entity_description = sensor
         self._attr_unique_id = f"{self._coordinator.vin}_{self.entity_description.key}"
         self._attr_name = f"{self._coordinator.alias} {self.entity_description.name}"
-
-        _LOGGER.info(self._attr_unique_id)
 
     @property
     def icon(self):

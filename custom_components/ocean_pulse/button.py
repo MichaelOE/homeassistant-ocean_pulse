@@ -40,8 +40,6 @@ class OceanPulseButton(OceanPulseBaseEntity, ButtonEntity):
         self._attr_unique_id = f"{self._coordinator.vin}_{description.key}"
         self._attr_name = f"{self._coordinator.alias} {description.name}"
 
-        _LOGGER.info(self._attr_unique_id)
-
     async def async_press(self) -> None:
         """Press the button."""
         _LOGGER.info("Press %s", self.entity_description.key)
@@ -74,6 +72,12 @@ async def async_setup_entry(
 
     coordinator: OceanPulseCoordinator = hass.data[DOMAIN][entry.entry_id]
 
-    async_add_entities(
-        [OceanPulseButton(coordinator, but) for but in BUTTON_ENTITIES]  # , True
+    entities = [OceanPulseButton(coordinator, but) for but in BUTTON_ENTITIES]
+    _LOGGER.debug(
+        "Setting up %d buttons for %s (VIN ...%s)",
+        len(entities),
+        coordinator.alias,
+        coordinator.vin[-5:],
     )
+
+    async_add_entities(entities)

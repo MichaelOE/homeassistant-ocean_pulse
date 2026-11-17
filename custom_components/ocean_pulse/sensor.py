@@ -77,11 +77,17 @@ async def async_setup_entry(
 
     coordinator: OceanPulseCoordinator = hass.data[DOMAIN][entry.entry_id]
 
-    async_add_entities(
-        OceanPulseSensor(coordinator, description)  # New sensor entity
-        for description in SENSORS_DIGITAL_TWIN  # Loops the list
-        # if description.key in coordinator.data  # IF there's data for the sensor
+    entities = [
+        OceanPulseSensor(coordinator, description)
+        for description in SENSORS_DIGITAL_TWIN
+    ]
+    _LOGGER.debug(
+        "Setting up %d sensors for %s (VIN ...%s)",
+        len(entities),
+        coordinator.alias,
+        coordinator.vin[-5:],
     )
+    async_add_entities(entities)
 
     # Remove latitude and longitude sensors from the entity registry if they exist
     ent_reg = entity_registry.async_get(hass)

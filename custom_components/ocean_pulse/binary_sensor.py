@@ -38,8 +38,6 @@ class OceanPulseBinarySensor(
         self._attr_unique_id = f"{coordinator.vin}_{sensor.key}"
         self._attr_name = sensor.name
 
-        _LOGGER.info(self._attr_unique_id)
-
     @property
     def icon(self):
         return self.entity_description.icon
@@ -71,11 +69,17 @@ async def async_setup_entry(
 
     coordinator: OceanPulseCoordinator = hass.data[DOMAIN][entry.entry_id]
 
-    async_add_entities(
-        OceanPulseBinarySensor(coordinator, description)  # New sensor entity
-        for description in BINARY_SENSORS  # Loops the list
-        if description.key in coordinator.data  # IF there's data for the sensor
+    entities = [
+        OceanPulseBinarySensor(coordinator, description)
+        for description in BINARY_SENSORS
+    ]
+    _LOGGER.debug(
+        "Setting up %d binary sensors for %s (VIN ...%s)",
+        len(entities),
+        coordinator.alias,
+        coordinator.vin[-5:],
     )
+    async_add_entities(entities)
 
     # Remove binary sensors that have moved to the sensor platform
     ent_reg = entity_registry.async_get(hass)
