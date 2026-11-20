@@ -139,11 +139,9 @@ class OceanPulseCoordinator(DataUpdateCoordinator):
                 data["device_id"] = raw.get("device_id")
                 data["device_name"] = raw.get("device_name")
 
-                # The API keeps a finished trip as PAUSED for hours before clearing
-                # current_trip, so the clear marks the end; keep the last trip visible
+                # The API can keep a finished trip as PAUSED for hours before clearing current_trip, so the clear marks the end; keep the last trip visible
                 if (trip := data.get("current_trip")) is not None:
-                    # A paused trip keeps its start time, so a new start time also
-                    # means the last trip has finished, in case the clear was missed
+                    # A paused trip keeps its start time, so a new start time also means the last trip has finished, in case the clear was missed
                     if self._last_trip is not None and trip.get(
                         "startedAtMs"
                     ) != self._last_trip.get("startedAtMs"):
