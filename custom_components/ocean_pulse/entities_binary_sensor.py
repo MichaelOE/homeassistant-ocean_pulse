@@ -79,13 +79,6 @@ BINARY_SENSORS: tuple[BinarySensorEntityDescription, ...] = (
         icon="mdi:steering",
         device_class=BinarySensorDeviceClass.HEAT,
     ),
-    # Connectivity
-    BinarySensorEntityDesc(
-        key="CAR_ASLEEP",
-        name="Car asleep",
-        icon="mdi:car-connected",
-        device_class=BinarySensorDeviceClass.CONNECTIVITY,
-    ),
     BinarySensorEntityDesc(
         key="SCU_CONNECTED",
         name="SCU connected",

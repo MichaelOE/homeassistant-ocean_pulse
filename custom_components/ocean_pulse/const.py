@@ -25,9 +25,6 @@ COMMAND_CALIFORNIA_MODE = "california_mode"
 TRIM_EXTREME_ULTRA_BATT_CAPACITY = 106
 TRIM_SPORT_BATT_CAPACITY = 75
 
-# CLIMATE_CONTROL_SEAT_HEAT = ["Unknown", "High", "Medium", "Low", "Off"]
-# LIST_CLIMATE_CONTROL_STEERING_WHEEL_HEAT = ["Unknown", "Off", "On"]
-
 CLIMATE_CONTROL_SEAT_HEAT = {
     0: ["Unknown", "mdi:help-rhombus-outline"],
     1: ["High", "mdi:car-seat-heater"],
@@ -36,26 +33,11 @@ CLIMATE_CONTROL_SEAT_HEAT = {
     4: ["Off", "mdi:car-seat-heater"],
 }
 
-# CLIMATE_CONTROL_STEERING_WHEEL_HEAT = {
-#     False: ["No Heat", "mdi:car-door"],
-#     True: ["Heating", "mdi:car-door"],
-# }
-
-# GEAR_IN_PARK = {
-#     False: ["Driving", "mdi:car-door"],
-#     True: ["Parked", "mdi:car-door"],
-# }
-
-# DOOR_LOCK = {
-#     False: ["Closed", "mdi:car-door"],
-#     True: ["Open", "mdi:car-door"],
-# }
-
 CHARGING_STATES = {
-    0: "not_charging",
+    0: "disconnected",
     1: "ac_charging",
     2: "dc_charging",
-    3: "standby",  # cable connected, not charging
+    3: "connected",  # cable connected, not charging
     4: "4",
     5: "5",
 }
@@ -65,7 +47,7 @@ CHARGING_LAMP_STATES = {
     1: "1",
     2: "stopped",  # green: AC, plugged in, charging stopped
     3: "charging",  # green_breath
-    4: "standby",  # blue: connected, not charging
+    4: "connected",  # blue: connected, not charging
     5: "5",
     6: "6",
     7: "7",

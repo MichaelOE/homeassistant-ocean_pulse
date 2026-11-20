@@ -83,7 +83,7 @@ async def async_setup_entry(
 
     # Remove binary sensors that have moved to the sensor platform
     ent_reg = entity_registry.async_get(hass)
-    for key in ("RECIRCULATION",):
+    for key in ("RECIRCULATION", "CAR_ASLEEP"):
         if entity_id := ent_reg.async_get_entity_id(
             "binary_sensor", DOMAIN, f"{coordinator.vin}_{key}"
         ):

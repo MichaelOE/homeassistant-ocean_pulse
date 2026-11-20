@@ -89,7 +89,7 @@ SENSORS_DIGITAL_TWIN: tuple[SensorEntityDescription, ...] = (
         key="HV_CAP",
         name="HV battery capacity",
         icon="mdi:car-electric",
-        device_class=SensorDeviceClass.ENERGY_STORAGE,
+        device_class=SensorDeviceClass.BATTERY,
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
     ),
@@ -397,6 +397,17 @@ SENSORS_DIGITAL_TWIN: tuple[SensorEntityDescription, ...] = (
         key="NETWORK_STATE",
         name="Network state",
         icon="mdi:network-outline",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDesc(
+        key="CAR_ASLEEP",
+        name="Car sleep state",
+        icon="mdi:sleep",
+        device_class=SensorDeviceClass.ENUM,
+        options=["asleep", "awake"],
+        value_fn=lambda v: (
+            "asleep" if str(v).lower() in ("true", "1", "asleep") else "awake"
+        ),
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
     SensorEntityDesc(
