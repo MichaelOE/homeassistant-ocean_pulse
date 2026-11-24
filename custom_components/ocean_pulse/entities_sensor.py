@@ -430,7 +430,7 @@ SENSORS_DIGITAL_TWIN: tuple[SensorEntityDescription, ...] = (
     SensorEntityDesc(
         key="last_update",
         name="Last updated",
-        icon="mdi:clock-outline",
+        icon="mdi:clock-check-outline",
         device_class=SensorDeviceClass.TIMESTAMP,
         entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=datetime.fromisoformat,
@@ -446,7 +446,7 @@ SENSORS_DIGITAL_TWIN: tuple[SensorEntityDescription, ...] = (
     SensorEntityDesc(
         key="PARKED_POLL_INTERVAL_S",
         name="Parked poll interval",
-        icon="mdi:timer-check-outline",
+        icon="mdi:timer-outline",
         device_class=SensorDeviceClass.DURATION,
         native_unit_of_measurement=UnitOfTime.SECONDS,
         entity_category=EntityCategory.DIAGNOSTIC,
